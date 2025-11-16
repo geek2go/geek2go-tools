@@ -32,14 +32,39 @@
     }
 
     .wrap {
-      max-width: 1024px;
-      margin: 28px auto;
-      padding: 0 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .page-header {
+      background: #ffffff;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin: 8px 0 6px;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .content {
+      padding: 0 20px 20px;
     }
 
     h1 {
       font-size: 24px;
       margin: 0 0 6px;
+      font-weight: 700;
     }
 
     p {
@@ -49,6 +74,7 @@
 
     .card {
       padding: 16px;
+      margin-bottom: 12px;
     }
 
     .row {
@@ -95,12 +121,15 @@
 </head>
 <body>
 <div class="wrap">
-  <a href="index.html" style="display: inline-block; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; margin-bottom: 12px;">← Back to Tools</a>
-  <h1>PC‑Doctor → Customer‑Friendly Summary</h1>
-  <p>Tick any add‑ons you performed. You can generate a summary <b>with or without</b> pasting a PC‑Doctor report. If you paste one, hardware details will be included.</p>
+  <div class="page-header">
+    <a href="index.html" style="display: inline-block; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600;">← Back to Tools</a>
+    <h1>PC‑Doctor → Customer‑Friendly Summary</h1>
+    <p>Tick any add‑ons you performed. You can generate a summary <b>with or without</b> pasting a PC‑Doctor report. If you paste one, hardware details will be included.</p>
+  </div>
 
+  <div class="content">
   <!-- 1) OPTIONAL ADD‑ONS (TOP) -->
-  <div class="card row" style="margin-top:10px">
+  <div class="card row">
     <div class="section-title">1) Optional Add‑Ons (non‑PC‑Doctor)</div>
 
     <!-- Presets -->
@@ -217,9 +246,10 @@
     <div class="buttons">
       <button id="copy">Copy summary</button>
     </div>
-    <p class="hint">The “Additional Work” section only appears when you check or fill something above.</p>
+    <p class="hint">The "Additional Work" section only appears when you check or fill something above.</p>
   </div>
-</div>
+  </div><!-- /content -->
+</div><!-- /wrap -->
 
 <script>
 (function(){

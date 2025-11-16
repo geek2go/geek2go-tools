@@ -7,22 +7,22 @@
   <link rel="stylesheet" href="shared.css">
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: #1e293b;
-      --card-bg: #1e293b;
-      --border: #334155;
-      --input-bg: #0f172a;
-      --button-bg: #0f172a;
-      --button-primary-bg: #334155;
-      --button-primary-border: #475569;
-      --muted: #94a3b8;
-      --text: #f1f5f9;
+      --bg: #f9f9f9;
+      --panel: #ffffff;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --input-bg: #ffffff;
+      --button-bg: #C10A11;
+      --button-primary-bg: #f3f4f6;
+      --button-primary-border: #d1d5db;
+      --muted: #6b7280;
+      --text: #000000;
       --accent-bg: #C10A11;
       --accent-border: #A3090F;
       --accent-text: #ffffff;
-      --warn-bg: #92400e;
-      --warn-border: #78350f;
-      --warn-text: #fef3c7;
+      --warn-bg: #f59e0b;
+      --warn-border: #d97706;
+      --warn-text: #ffffff;
       --radius: 8px;
     }
 
@@ -33,17 +33,21 @@
     }
 
     header {
+      background: #ffffff;
       padding: 18px 20px;
       border-bottom: 1px solid var(--border);
       display: flex;
       gap: 16px;
       align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     header h1 {
       margin: 0;
       font-size: 20px;
       letter-spacing: .3px;
+      color: var(--text);
+      font-weight: 700;
     }
 
     main {
@@ -51,6 +55,8 @@
       grid-template-columns: 1.2fr .9fr;
       gap: 18px;
       padding: 18px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .grid {
@@ -61,17 +67,19 @@
     #output {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
       white-space: pre;
-      background: var(--input-bg);
+      background: #f9fafb;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       padding: 12px;
       min-height: 260px;
+      color: var(--text);
     }
 
     .checklist {
-      border: 1px dashed #334155;
-      border-radius: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
       padding: 10px;
+      background: #f9fafb;
     }
 
     .checklist .item {

@@ -13,13 +13,19 @@ body {
 /* Form elements */
 select, input[type="text"], textarea {
   width: 100%;
-  border: 1px solid var(--border, #1f2937);
-  border-radius: 10px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 8px);
   padding: 8px 10px;
   font-size: 14px;
-  font-family: inherit;
-  background: var(--input-bg, #0b1220);
-  color: var(--text, #e5e7eb);
+  font-family: Arial, sans-serif;
+  background: var(--input-bg, #ffffff);
+  color: var(--text, #000000);
+  transition: border-color 0.2s ease;
+}
+
+select:focus, input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent, #C10A11);
 }
 
 select, input[type="text"] {
@@ -119,26 +125,27 @@ button.warn {
 /* Typography */
 label {
   font-size: 13px;
-  color: var(--muted, #94a3b8);
+  color: var(--muted, #6b7280);
   display: block;
+  font-weight: 500;
 }
 
 .section-title {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--muted, #9ca3af);
+  color: var(--text, #000000);
   margin: 8px 0 10px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .muted {
-  color: var(--muted, #94a3b8);
+  color: var(--muted, #6b7280);
   font-size: 12px;
 }
 
 .hint {
-  color: var(--muted, #94a3b8);
+  color: var(--muted, #6b7280);
   font-size: 12px;
 }
 
