@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PC‑Doctor → Customer‑Friendly Summary</title>
+  <title>Geek2Go Computer Repair Checklist</title>
   <link rel="stylesheet" href="shared.css">
   <style>
     :root {
@@ -160,8 +160,8 @@
 <div class="wrap">
   <div class="page-header">
     <a href="index.html" style="display: inline-block; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600;">← Back to Tools</a>
-    <h1>PC‑Doctor → Customer‑Friendly Summary</h1>
-    <p>Tick any add‑ons you performed. You can generate a summary <b>with or without</b> pasting a PC‑Doctor report. If you paste one, hardware details will be included.</p>
+    <h1>Computer Repair Checklist</h1>
+    <p>Document hardware diagnostics and service work performed. Paste a PC-Doctor report or enter information manually to generate professional ticket notes.</p>
   </div>
 
   <div class="content">
@@ -173,7 +173,6 @@
     <label for="src" class="section-title">1) Paste PC‑Doctor Report (Optional)</label>
     <textarea id="src" placeholder="Ctrl+A → Ctrl+C from Service Center Remote, then paste here… (or leave blank to summarize add‑ons only)"></textarea>
     <div class="buttons">
-      <button id="summarize">Generate Summary</button>
       <button class="secondary" id="sample">Load Sample</button>
       <button class="secondary" id="clear">Clear</button>
     </div>
@@ -272,9 +271,10 @@
       <label for="out" class="section-title">Summary Output</label>
       <textarea id="out" class="out" placeholder="Summary will appear here…" style="min-height: 500px;"></textarea>
       <div class="buttons">
-        <button id="copy">Copy to Clipboard</button>
+        <button id="summarize">Generate Summary</button>
+        <button class="secondary" id="copy">Copy to Clipboard</button>
       </div>
-      <p class="hint">Click "Generate Summary" to create the output. The summary updates automatically as you make changes.</p>
+      <p class="hint">Click "Generate Summary" to create the output. You can make changes on the left and regenerate as needed.</p>
     </div>
   </div><!-- /right-column -->
 

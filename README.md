@@ -19,10 +19,10 @@ Interactive checklist for documenting phone, tablet, and game console repairs.
 
 **Use:** Open the file in a browser, fill in the form, and copy the generated checklist into your POS system.
 
-### 2. PC-Doctor Report Summarizer
+### 2. Computer Repair Checklist
 **File:** `pc-doctor-summarizer.html`
 
-Converts PC-Doctor diagnostic reports into customer-friendly summaries with simplified parsing logic.
+Document hardware diagnostics and service work with PC-Doctor report parsing for professional ticket notes.
 
 **Features:**
 - Parses hardware specs (CPU, RAM, Storage, GPU, OS)

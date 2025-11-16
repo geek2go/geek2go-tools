@@ -52,9 +52,9 @@ TEMPLATES = {
 
 **Output Format**: Plain text with headers, metadata, and checkbox lists suitable for ticket systems.
 
-### pc-doctor-summarizer.html
+### pc-doctor-summarizer.html (Computer Repair Checklist)
 
-Parses PC-Doctor diagnostic reports and generates customer-friendly summaries with optional add-on services.
+Documents hardware diagnostics and service work with PC-Doctor report parsing for professional ticket notes.
 
 **Key Features**:
 - Simplified parser for hardware specifications (CPU, RAM, Storage, GPU, OS)
