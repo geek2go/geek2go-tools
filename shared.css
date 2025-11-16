@@ -37,15 +37,17 @@ button {
   background: var(--button-bg, #0b1220);
   color: var(--text, #fff);
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius, 8px);
   cursor: pointer;
   font-weight: 600;
-  font-family: inherit;
+  font-family: Arial, sans-serif;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 button:active {
@@ -79,8 +81,9 @@ button.warn {
 .card {
   background: var(--card-bg, var(--panel, #111827));
   border: 1px solid var(--border, #1f2937);
-  border-radius: var(--radius, 14px);
+  border-radius: var(--radius, 8px);
   padding: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .row {

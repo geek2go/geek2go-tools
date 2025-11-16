@@ -7,14 +7,14 @@
   <link rel="stylesheet" href="shared.css">
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --border: #334155;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #22c55e;
-      --accent-hover: #16a34a;
-      --radius: 14px;
+      --bg: #f9f9f9;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --text: #000000;
+      --muted: #6b7280;
+      --accent: #C10A11;
+      --accent-hover: #A3090F;
+      --radius: 8px;
     }
 
     body {
@@ -25,6 +25,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      font-family: Arial, sans-serif;
     }
 
     .container {
@@ -37,10 +38,25 @@
       margin-bottom: 40px;
     }
 
+    .brand-link {
+      display: inline-block;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .brand-link:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
     h1 {
       font-size: 36px;
       margin: 0 0 12px;
       font-weight: 700;
+      color: var(--text);
     }
 
     .subtitle {
@@ -62,18 +78,20 @@
       text-decoration: none;
       color: inherit;
       transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .tool-card:hover {
       border-color: var(--accent);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+      box-shadow: 0 4px 12px rgba(193, 10, 17, 0.15);
     }
 
     .tool-card h2 {
       margin: 0 0 8px;
       font-size: 22px;
       color: var(--accent);
+      font-weight: 700;
     }
 
     .tool-card p {
@@ -116,9 +134,11 @@
     footer a {
       color: var(--accent);
       text-decoration: none;
+      font-weight: 600;
     }
 
     footer a:hover {
+      color: var(--accent-hover);
       text-decoration: underline;
     }
 
@@ -132,6 +152,7 @@
 <body>
   <div class="container">
     <header>
+      <a href="https://geek2gomn.com" target="_blank" class="brand-link">← Back to Geek2Go</a>
       <h1>Geek2Go Repair Tools</h1>
       <p class="subtitle">Simple browser-based tools for better ticket notes</p>
     </header>
@@ -159,8 +180,8 @@
     </div>
 
     <footer>
-      <p>Open source tools for computer repair technicians</p>
-      <p><a href="https://github.com/geek2go/geek2go-tools" target="_blank">View on GitHub</a></p>
+      <p>Open source tools for Geek2Go technicians</p>
+      <p><a href="https://geek2gomn.com" target="_blank">Visit Geek2Go</a> • <a href="https://github.com/geek2go/geek2go-tools" target="_blank">View on GitHub</a></p>
     </footer>
   </div>
 </body>
