@@ -528,35 +528,48 @@
   $('copy').onclick = async ()=>{ const txt=$('out').value; if(!txt) return; try{ await navigator.clipboard.writeText(txt);}catch(e){} };
   $('clear').onclick = ()=>{ $('src').value=''; $('out').value=''; };
   $('sample').onclick = ()=>{
-    $('src').value = `Operating System: Microsoft Windows 11 Professional (64-bit)
-Version: 23H2
-Build Number: 22631.5189
-Test Date: 4/15/2025
-Result: No Cable
+    $('src').value = `Serial Number: 5CD9377C6L
+Operating System: Microsoft Windows 11 Home (64-bit)
+Version: 25H2
+Build Number: 26200.7171
+Test Date: 11/12/2025
 
-Intel(R) Core(TM) i5-8350U CPU @ 1.70GHz (CPU:0)
-Cores\t4
-Threads\t8
+Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz (CPU:0)
+Cores    4
+Threads    8
 
 System Memory
-Total Physical Memory\t16.00 GB
-16384 MB DDR4-SDRAM (2400 MHz)
+Total Physical Memory    16.00 GB
+8192 MB DDR4-SDRAM (2666 MHz)
+8192 MB DDR4-SDRAM (2666 MHz)
 
-SK hynix SC401 SATA 1TB
-Model Number\tSK hynix SC401 SATA 1TB
-Size\t953.9 GB
+T-FORCE TM8FFE512G
+Model Number    T-FORCE TM8FFE512G
+Total Capacity    476.94 GB
 C:
-Volume Capacity\t952.81 GB
-Volume Free Space\t832.42 GB
+Volume Capacity    476.05 GB
+Volume Free Space    399.97 GB
 
-Intel(R) UHD Graphics 620
+Intel(R) Iris(R) Plus Graphics
+NVIDIA GeForce MX250
 
-Register Test\tPassed
-Windows Memory Test\tPassed
-SMART Status Test\tPassed
-Network Link Test\tPassed
-TCP/IP Internal Loopback Test\tPassed
-Internet Communication Test\tNo Cable`;
+Register Test    Passed
+Level 2 Cache Test    Passed
+MMX Test    Passed
+AVX2 Test    Passed
+Stress Test    Passed
+Windows Memory Test    Passed
+Checkerboard Test    Passed
+Moving Inversion Test    Passed
+NVMe Status Test    Passed
+Targeted Read Test (SSD)    Passed
+Network Link Test    Passed
+TCP/IP Internal Loopback Test    Passed
+Internet Communication Test    Passed
+Shader Rendering Test    Passed
+GPU Pipeline Data Test    Passed
+Video Memory Test    Passed
+PCI Express Status Test    Passed`;
   };
 
   // Preset buttons
