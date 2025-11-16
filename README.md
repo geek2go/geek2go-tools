@@ -34,6 +34,22 @@ Document hardware diagnostics and service work with PC-Doctor report parsing for
 
 **Use:** Paste a PC-Doctor report, check any additional work performed, and generate a professional summary for your ticket.
 
+### 3. Bitdefender Mobile Manager
+**Platform:** Google Apps Script (external link)
+
+Manage Bitdefender Mobile Security customer subscriptions and send automated activation emails.
+
+**Features:**
+- Integrates with MyRepairApp API to find customers who purchased Bitdefender
+- Tracks subscription renewal dates and status
+- Sends branded activation emails with GravityZone links
+- Dashboard with renewal reminders
+- Filters by Active, Expiring Soon, Expired subscriptions
+
+**Use:** Click the link from the tools page to access the manager (requires Google account login).
+
+**Note:** This tool is currently hosted on Google Apps Script to enable email sending functionality. See CLAUDE.md for future migration options.
+
 ## Usage
 
 These are standalone HTML files with no dependencies:

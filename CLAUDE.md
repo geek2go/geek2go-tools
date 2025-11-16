@@ -78,6 +78,74 @@ Documents hardware diagnostics and service work with PC-Doctor report parsing fo
 
 **Test Result Logic**: Avoids false positives by checking for actual failure tokens (`Failed`, `Error`, `Critical`, `Bad`, `SMART Warning`) rather than generic keywords. Special handling for network tests when Ethernet cable is not connected.
 
+### Bitdefender Mobile Manager (Google Apps Script)
+
+**Status**: Currently hosted separately as a Google Apps Script web app (not in this repository).
+
+**Purpose**: Manages Bitdefender Mobile Security customer subscriptions, tracks renewals, and sends automated activation emails.
+
+**Key Features**:
+- Searches MyRepairApp API for customers who purchased BIT-MOBSEC SKU
+- Calculates renewal dates (365-day subscriptions)
+- Sends branded activation emails with GravityZone links
+- Tracks invitation history using Google Properties Service
+- Filters customers by status (Active, Expiring Soon, Expired)
+- Renewal reminder dashboard
+
+**Architecture**:
+- **Backend**: Google Apps Script (code.gs) - Handles API calls and email sending
+- **Frontend**: HTML/JavaScript (BitdefenderManager.html) - User interface
+- **API Integration**: MyRepairApp API for ticket/customer data
+- **Email Service**: Gmail via MailApp (100 emails/day free, unlimited with Google Workspace)
+- **Storage**: PropertiesService for tracking sent invitations
+
+**Configuration**:
+```javascript
+const MYREPAIRAPP_API_KEY = '...'
+const BITDEFENDER_SKU = 'BIT-MOBSEC'
+const BITDEFENDER_ACTIVATION_LINK = 'https://gz1-device-api.ms.gravityzone.bitdefender.com/...'
+const SUBSCRIPTION_LENGTH_DAYS = 365
+const RETAIL_PRICE = 60
+const MONTHLY_COST = 1.30
+```
+
+**Access**: Linked from index.html but hosted at script.google.com (requires Google account login)
+
+**Future Migration Options** (if needed):
+
+1. **Hybrid Approach** (Recommended next step):
+   - Keep Google Apps Script backend for email/API
+   - Create cleaner frontend in this repo that calls the script
+   - Deploy web app as published version with public access
+   - Better integration with other tools while keeping email functionality
+
+2. **Full Migration to GitHub Pages**:
+   - Replace MailApp with email service (EmailJS, SendGrid, AWS SES)
+   - Move MyRepairApp API calls to client-side (requires CORS support)
+   - Store invitation tracking in localStorage or external database
+   - **Pros**: Everything in one repo, version controlled
+   - **Cons**: Email service costs, API key exposure concerns, more complex
+
+3. **Backend Service** (Advanced):
+   - Build Node.js backend (Netlify Functions, Vercel, AWS Lambda)
+   - Handle API calls and email sending server-side
+   - Frontend stays in this repo
+   - **Pros**: Secure API keys, full control
+   - **Cons**: Requires backend hosting, more maintenance
+
+**Current Limitations**:
+- Separate hosting from other tools
+- Long, ugly URL
+- Must be logged into Google account to access
+- Not version controlled with other tools
+
+**Why Google Apps Script Works Well**:
+- Free email sending (100/day or unlimited with Workspace)
+- Easy MyRepairApp API integration
+- Built-in PropertiesService for simple data storage
+- No server management
+- Scheduled triggers available for automated renewals
+
 ## Common Workflows
 
 ### Modifying Checklist Templates
