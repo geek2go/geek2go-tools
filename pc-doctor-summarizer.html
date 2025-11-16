@@ -135,14 +135,10 @@
     <!-- Presets -->
     <div class="toolbar">
       <span class="hint" style="margin-right:6px">Presets:</span>
-      <button class="chip" id="preset_quick">Quick Clean</button>
+      <button class="chip" id="preset_quick">Standard Tune-Up</button>
       <button class="chip" id="preset_newpc">New PC Setup</button>
-      <button class="chip" id="preset_business">Business Standard</button>
-      <button class="chip" id="preset_gaming">Gaming Build</button>
-      <button class="chip" id="preset_lite">Managed Care Lite</button>
-      <button class="chip" id="preset_plus">Managed Care Plus</button>
-      <button class="secondary" id="save_defaults">Save my defaults</button>
-      <button class="secondary" id="load_defaults">Load my defaults</button>
+      <button class="secondary" id="save_defaults">Save Defaults</button>
+      <button class="secondary" id="load_defaults">Load Defaults</button>
     </div>
 
     <div class="grid grid-2">
@@ -180,40 +176,29 @@
       <div>
         <label class="chk"><input type="checkbox" id="software_chk"> Software Installed</label>
         <input id="software_list" type="text" placeholder="e.g., Office, Chrome, Adobe Reader"/>
-        <div class="toolbar" style="margin-top:6px">
-          <button class="chip" data-soft="Chrome, Adobe Reader">+ Essentials</button>
-          <button class="chip" data-soft="Office, Chrome, Adobe Reader">+ Office Bundle</button>
-          <button class="chip" data-soft="Chrome, 7‑Zip, VLC">+ Utilities</button>
-          <button class="chip" data-soft="Steam, GPU drivers, RGB software">+ Gaming Apps</button>
-        </div>
       </div>
 
-      <!-- Other Work -->
+      <!-- Additional Work -->
       <div>
-        <label class="chk"><input type="checkbox" id="other_chk"> Other Work</label>
-        <input id="other_notes" type="text" placeholder="e.g., data migration, dust cleaning, cable repair"/>
+        <label class="chk"><input type="checkbox" id="other_chk"> Additional Work Performed</label>
+        <input id="other_notes" type="text" placeholder="e.g., data migration, hardware upgrade, cleaning"/>
       </div>
     </div>
 
     <hr/>
 
-    <!-- Diagnostics/Battery + Maintenance group -->
+    <!-- Additional Details -->
     <div class="grid grid-2">
       <div>
-        <label>Other Diagnostic Tests<br/>
-          <input id="otherDiagnostics" type="text" placeholder="e.g., vendor SSD tool, memtest pass, fan curve test"/>
-        </label>
-        <label style="margin-top:6px">Laptop Battery Health (if applicable)<br/>
-          <input id="batteryHealth" type="text" placeholder="e.g., 92% of design capacity"/>
+        <label>Additional Diagnostics / Notes<br/>
+          <input id="otherDiagnostics" type="text" placeholder="e.g., Battery health: 92%, SSD test passed, memtest OK"/>
         </label>
       </div>
       <div>
-        <div class="section-title" style="margin-bottom:6px">Maintenance (grouped)</div>
+        <div class="section-title" style="margin-bottom:6px">Maintenance Performed</div>
         <div class="toolbar">
-          <label class="chk"><input type="checkbox" id="chkChkdsk"> CHKDSK Scan</label>
-          <label class="chk"><input type="checkbox" id="chkTemp"> Temp Files Removed</label>
-          <label class="chk"><input type="checkbox" id="chkRegistry"> Registry Cleaned</label>
-          <label class="chk"><input type="checkbox" id="chkClean"> Device wiped/cleaned</label>
+          <label class="chk"><input type="checkbox" id="chkTemp"> Temp Files Cleaned</label>
+          <label class="chk"><input type="checkbox" id="chkClean"> System Cleaned</label>
         </div>
       </div>
     </div>
@@ -394,13 +379,14 @@
     if($('mbam_chk').checked){ let s=`- Malwarebytes: ${$('mbam_result').value}`; const n=$('mbam_notes').value.trim(); if(n) s+=` — ${n}`; parts.push(s); }
     if($('updates_chk').checked){ let s=`- Windows & Drivers: ${$('updates_status').value}`; const n=$('updates_notes').value.trim(); if(n) s+=` — ${n}`; parts.push(s); }
     if($('software_chk').checked){ const list=$('software_list').value.trim(); parts.push(`- Software Installed${list? ': '+list:''}`); }
-    if($('other_chk').checked){ const n=$('other_notes').value.trim(); if(n) parts.push(`- Other Work: ${n}`); }
+    if($('other_chk').checked){ const n=$('other_notes').value.trim(); if(n) parts.push(`- Additional Work: ${n}`); }
 
-    const od=$('otherDiagnostics').value.trim(); if(od) parts.push(`- Other Diagnostics: ${od}`);
-    const bat=$('batteryHealth').value.trim(); if(bat) parts.push(`- Battery Health: ${bat}`);
+    const od=$('otherDiagnostics').value.trim(); if(od) parts.push(`- Additional Diagnostics: ${od}`);
 
-    const maint=[]; if($('chkChkdsk').checked) maint.push('CHKDSK Scan'); if($('chkTemp').checked) maint.push('Temp Files Removed'); if($('chkRegistry').checked) maint.push('Registry Cleaned'); if($('chkClean').checked) maint.push('Device wiped/cleaned');
-    if(maint.length) parts.push(`- Maintenance Performed: ${maint.join(', ')}`);
+    const maint=[];
+    if($('chkTemp').checked) maint.push('Temp Files Cleaned');
+    if($('chkClean').checked) maint.push('System Cleaned');
+    if(maint.length) parts.push(`- Maintenance: ${maint.join(', ')}`);
 
     const tech=$('tech_name').value.trim(); const notes=$('tech_notes').value.trim();
     return {parts, tech, notes};
@@ -451,40 +437,18 @@
 
   // Presets
   function applyPreset(name){
-    ['mbam_chk','updates_chk','software_chk','other_chk','chkChkdsk','chkTemp','chkRegistry','chkClean'].forEach(id=>setChecked(id,false));
+    ['mbam_chk','updates_chk','software_chk','other_chk','chkTemp','chkClean'].forEach(id=>setChecked(id,false));
     switch(name){
       case 'quick':
         setChecked('mbam_chk',true); setVal('mbam_result','Clean'); setVal('mbam_notes','');
         setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','');
-        setChecked('software_chk',true); setVal('software_list','Chrome, Adobe Reader');
         setChecked('chkTemp',true);
         break;
       case 'newpc':
         setChecked('mbam_chk',true); setVal('mbam_result','Clean');
-        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','Chipset, GPU, BIOS if available');
-        setChecked('software_chk',true); setVal('software_list','Office, Chrome, Adobe Reader, 7‑Zip');
+        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','All drivers updated');
+        setChecked('software_chk',true); setVal('software_list','Office, Chrome, Adobe Reader');
         setChecked('chkTemp',true); setChecked('chkClean',true);
-        break;
-      case 'business':
-        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','Windows + drivers');
-        setChecked('software_chk',true); setVal('software_list','Office, Chrome, Adobe Reader, Teams, Zoom');
-        setChecked('chkTemp',true);
-        break;
-      case 'gaming':
-        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','GPU drivers updated');
-        setChecked('software_chk',true); setVal('software_list','Steam, GPU drivers, RGB software');
-        break;
-      case 'lite':
-        setChecked('updates_chk',true); setVal('updates_status','Completed');
-        setChecked('mbam_chk',true); setVal('mbam_result','Clean');
-        setChecked('chkTemp',true);
-        setVal('other_notes','Enrolled in Managed Care Lite program'); setChecked('other_chk',true);
-        break;
-      case 'plus':
-        setChecked('updates_chk',true); setVal('updates_status','Completed');
-        setChecked('mbam_chk',true); setVal('mbam_result','Clean');
-        setChecked('chkTemp',true); setChecked('chkClean',true);
-        setVal('other_notes','Enrolled in Managed Care Plus program'); setChecked('other_chk',true);
         break;
     }
   }
@@ -496,8 +460,8 @@
       updates_chk: $('updates_chk').checked, updates_status: $('updates_status').value, updates_notes: $('updates_notes').value,
       software_chk: $('software_chk').checked, software_list: $('software_list').value,
       other_chk: $('other_chk').checked, other_notes: $('other_notes').value,
-      otherDiagnostics: $('otherDiagnostics').value, batteryHealth: $('batteryHealth').value,
-      chkChkdsk: $('chkChkdsk').checked, chkTemp: $('chkTemp').checked, chkRegistry: $('chkRegistry').checked, chkClean: $('chkClean').checked,
+      otherDiagnostics: $('otherDiagnostics').value,
+      chkTemp: $('chkTemp').checked, chkClean: $('chkClean').checked,
       tech_name: $('tech_name').value, tech_notes: $('tech_notes').value
     };
     localStorage.setItem('g2g_summarizer_defaults', JSON.stringify(data));
@@ -508,8 +472,8 @@
       setChecked('updates_chk',d.updates_chk); setVal('updates_status',d.updates_status); setVal('updates_notes',d.updates_notes);
       setChecked('software_chk',d.software_chk); setVal('software_list',d.software_list);
       setChecked('other_chk',d.other_chk); setVal('other_notes',d.other_notes);
-      setVal('otherDiagnostics',d.otherDiagnostics||''); setVal('batteryHealth',d.batteryHealth||'');
-      setChecked('chkChkdsk',d.chkChkdsk); setChecked('chkTemp',d.chkTemp); setChecked('chkRegistry',d.chkRegistry); setChecked('chkClean',d.chkClean);
+      setVal('otherDiagnostics',d.otherDiagnostics||'');
+      setChecked('chkTemp',d.chkTemp); setChecked('chkClean',d.chkClean);
       setVal('tech_name',d.tech_name); setVal('tech_notes',d.tech_notes);
     }catch(e){}
   }
@@ -553,13 +517,6 @@ Internet Communication Test\tNo Cable`;
   // Preset buttons
   $('preset_quick').onclick = ()=>applyPreset('quick');
   $('preset_newpc').onclick = ()=>applyPreset('newpc');
-  $('preset_business').onclick = ()=>applyPreset('business');
-  $('preset_gaming').onclick = ()=>applyPreset('gaming');
-  $('preset_lite').onclick = ()=>applyPreset('lite');
-  $('preset_plus').onclick = ()=>applyPreset('plus');
-
-  // Chips
-  document.querySelectorAll('[data-soft]').forEach(btn=>btn.addEventListener('click',()=>{ $('software_chk').checked=true; const add=btn.getAttribute('data-soft'); const cur=$('software_list').value.trim(); $('software_list').value = cur? cur+', '+add : add; }));
 
   // Save/load defaults
   $('save_defaults').onclick = saveDefaults;
