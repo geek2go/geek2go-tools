@@ -58,7 +58,24 @@
     }
 
     .content {
-      padding: 0 20px 20px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 0.8fr;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .right-column {
+      position: sticky;
+      top: 20px;
+      align-self: start;
     }
 
     h1 {
@@ -74,7 +91,18 @@
 
     .card {
       padding: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .right-column {
+        position: relative;
+        top: 0;
+      }
     }
 
     .row {
@@ -82,8 +110,17 @@
     }
 
     textarea {
-      min-height: 160px;
+      min-height: 120px;
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    #src {
+      min-height: 200px;
+    }
+
+    #out {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      background: #f9fafb;
     }
 
     select {
@@ -128,9 +165,23 @@
   </div>
 
   <div class="content">
-  <!-- 1) OPTIONAL ADD‑ONS (TOP) -->
+  <!-- Left Column -->
+  <div class="left-column">
+
+  <!-- 1) PASTE PC-DOCTOR REPORT -->
   <div class="card row">
-    <div class="section-title">1) Optional Add‑Ons (non‑PC‑Doctor)</div>
+    <label for="src" class="section-title">1) Paste PC‑Doctor Report (Optional)</label>
+    <textarea id="src" placeholder="Ctrl+A → Ctrl+C from Service Center Remote, then paste here… (or leave blank to summarize add‑ons only)"></textarea>
+    <div class="buttons">
+      <button id="summarize">Generate Summary</button>
+      <button class="secondary" id="sample">Load Sample</button>
+      <button class="secondary" id="clear">Clear</button>
+    </div>
+  </div>
+
+  <!-- 2) OPTIONAL ADD‑ONS -->
+  <div class="card row">
+    <div class="section-title">2) Additional Work Performed</div>
 
     <!-- Presets -->
     <div class="toolbar">
@@ -213,26 +264,20 @@
     </div>
   </div>
 
-  <!-- 2) PASTE AREA -->
-  <div class="card row" style="margin-top:12px">
-    <label for="src" class="section-title">2) Paste PC‑Doctor report text (optional)</label>
-    <textarea id="src" placeholder="Ctrl+A → Ctrl+C from Service Center Remote, then paste here… (or leave blank to summarize add‑ons only)"></textarea>
-    <div class="buttons">
-      <button id="summarize">Summarize</button>
-      <button class="secondary" id="sample">Load sample</button>
-      <button class="secondary" id="clear">Clear</button>
-    </div>
-  </div>
+  </div><!-- /left-column -->
 
-  <!-- 3) OUTPUT -->
-  <div class="card row" style="margin-top:12px">
-    <label for="out" class="section-title">3) Copy into your POS</label>
-    <textarea id="out" class="out" placeholder="Summary will appear here…"></textarea>
-    <div class="buttons">
-      <button id="copy">Copy summary</button>
+  <!-- Right Column - Output -->
+  <div class="right-column">
+    <div class="card row">
+      <label for="out" class="section-title">Summary Output</label>
+      <textarea id="out" class="out" placeholder="Summary will appear here…" style="min-height: 500px;"></textarea>
+      <div class="buttons">
+        <button id="copy">Copy to Clipboard</button>
+      </div>
+      <p class="hint">Click "Generate Summary" to create the output. The summary updates automatically as you make changes.</p>
     </div>
-    <p class="hint">The "Additional Work" section only appears when you check or fill something above.</p>
-  </div>
+  </div><!-- /right-column -->
+
   </div><!-- /content -->
 </div><!-- /wrap -->
 
