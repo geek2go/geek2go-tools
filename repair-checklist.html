@@ -127,21 +127,6 @@
       <div class="spacer"></div>
 
       <div class="row">
-        <div style="flex:1 1 220px">
-          <label for="customer">Customer</label>
-          <input id="customer" type="text" placeholder="Name (optional)" />
-        </div>
-        <div style="flex:1 1 220px">
-          <label for="deviceModel">Device Model</label>
-          <input id="deviceModel" type="text" placeholder="e.g., iPhone 13 Pro / PS5" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div style="flex:1 1 220px">
-          <label for="serial">Serial / IMEI</label>
-          <input id="serial" type="text" placeholder="Optional" />
-        </div>
         <div id="passcodeWrap" style="flex:1 1 220px">
           <label for="passcode">Passcode Provided?</label>
           <select id="passcode">
@@ -150,11 +135,8 @@
             <option>No</option>
           </select>
         </div>
-      </div>
-
-      <div class="row">
-        <div style="flex: 1 1 100%">
-          <label for="accessories">Accessories Provided (list)</label>
+        <div style="flex: 1 1 auto">
+          <label for="accessories">Accessories Provided</label>
           <input id="accessories" type="text" placeholder="Case, charger, SIM, SD card, controllers, HDMI, power cord…" />
         </div>
       </div>
@@ -228,9 +210,6 @@
     const deviceType = document.getElementById('deviceType');
     const passcodeWrap = document.getElementById('passcodeWrap');
 
-    const customer = document.getElementById('customer');
-    const deviceModel = document.getElementById('deviceModel');
-    const serial = document.getElementById('serial');
     const passcode = document.getElementById('passcode');
     const accessories = document.getElementById('accessories');
     const notes = document.getElementById('notes');
@@ -243,91 +222,69 @@
         Pre: [
           "Device powers on",
           "Screen/touch responsive",
-          "Buttons (power, volume, mute)",
-          "Sound (earpiece, speaker, mic)",
-          "Vibration/Haptics",
-          "Wi‑Fi / Cellular / Bluetooth / NFC",
-          "Charging port",
-          "Headphone jack (if present)",
-          "Camera(s) / Flash",
-          "Fingerprint / Face ID (if applicable)",
-          "SIM/SD slot",
-          "Accessories accounted for",
-          "Cosmetic inspection (scratches/cracks/dents/LDI)"
+          "Physical buttons functional",
+          "Audio (earpiece, speaker, mic)",
+          "Connectivity (Wi-Fi, cellular, Bluetooth)",
+          "Charging port functional",
+          "Camera(s) functional",
+          "Cosmetic condition documented"
         ],
         Post: [
           "Repair completed successfully",
           "Device powers on",
           "Screen/touch responsive",
-          "Buttons (power, volume, mute)",
-          "Sound (earpiece, speaker, mic)",
-          "Vibration/Haptics",
-          "Wi‑Fi / Cellular / Bluetooth / NFC",
-          "Charging port",
-          "Camera(s) / Flash",
-          "Fingerprint / Face ID (if applicable)",
-          "SIM/SD slot",
-          "Device cleaned / sanitized",
-          "All accessories returned",
-          "Final cosmetic inspection"
+          "Physical buttons functional",
+          "Audio functional",
+          "Connectivity functional",
+          "Charging port functional",
+          "Camera(s) functional",
+          "Device cleaned and sanitized"
         ]
       },
       Tablet: {
         Pre: [
           "Device powers on",
-          "Touchscreen responsive across display",
-          "Buttons (power, volume, home if present)",
-          "Sound (speakers, mic)",
-          "Wi‑Fi / Bluetooth / Cellular (if applicable)",
-          "Charging port",
-          "Camera(s) / Flash",
-          "Accessories accounted for (case, stylus, keyboard, charger, SIM)",
-          "Cosmetic inspection (scratches/cracks/dents/LDI)"
+          "Touchscreen responsive",
+          "Physical buttons functional",
+          "Audio (speakers, mic)",
+          "Connectivity (Wi-Fi, Bluetooth)",
+          "Charging port functional",
+          "Camera(s) functional",
+          "Cosmetic condition documented"
         ],
         Post: [
           "Repair completed successfully",
           "Device powers on",
-          "Touchscreen responsive across display",
-          "Buttons (power, volume, home if present)",
-          "Sound (speakers, mic)",
-          "Wi‑Fi / Bluetooth / Cellular (if applicable)",
-          "Charging port",
-          "Camera(s) / Flash",
-          "Device cleaned / sanitized",
-          "All accessories returned",
-          "Final cosmetic inspection"
+          "Touchscreen responsive",
+          "Physical buttons functional",
+          "Audio functional",
+          "Connectivity functional",
+          "Charging port functional",
+          "Camera(s) functional",
+          "Device cleaned and sanitized"
         ]
       },
       Console: {
         Pre: [
           "Console powers on",
           "Boots to home screen",
-          "Disc drive reads discs (if applicable)",
-          "Controller(s) sync / function",
-          "HDMI / Display output working",
-          "Sound output working",
-          "Wi‑Fi / Ethernet connectivity",
-          "USB ports working",
-          "Overheating symptoms present?",
-          "Accessories accounted for (controllers, power cord, HDMI, storage)",
-          "Cosmetic inspection (scratches/dents/dust)"
+          "Disc drive functional (if applicable)",
+          "Controller(s) functional",
+          "Video/audio output functional",
+          "Network connectivity functional",
+          "USB ports functional",
+          "Cosmetic condition documented"
         ],
         Post: [
           "Repair completed successfully",
           "Console powers on",
           "Boots to home screen",
-          "Disc drive reads discs (if applicable)",
-          "Controller(s) sync / function",
-          "HDMI / Display output working",
-          "Sound output working",
-          "Wi‑Fi / Ethernet connectivity",
-          "USB ports working",
-          "Thermal paste reapplied (if applicable)",
-          "Fans cleaned / dust removed",
-          "Overheating resolved",
-          "Console cleaned / sanitized",
-          "All accessories returned",
-          "Final cosmetic inspection"
+          "Disc drive functional",
+          "Controller(s) functional",
+          "Video/audio output functional",
+          "Network connectivity functional",
+          "USB ports functional",
+          "Console cleaned and sanitized"
         ]
       }
     };
@@ -376,9 +333,6 @@
       const time = new Date().toLocaleString();
       parts.push(`====== ${device} Repair Checklist ======`);
       parts.push(`Date: ${time}`);
-      if (customer.value.trim()) parts.push(`Customer: ${customer.value.trim()}`);
-      if (deviceModel.value.trim()) parts.push(`Device: ${deviceModel.value.trim()}`);
-      if (serial.value.trim()) parts.push(`Serial/IMEI: ${serial.value.trim()}`);
       if (device !== 'Console' && passcode.value) parts.push(`Passcode Provided: ${passcode.value}`);
       if (accessories.value.trim()) parts.push(`Accessories: ${accessories.value.trim()}`);
       parts.push('');
@@ -399,7 +353,7 @@
     deviceType.addEventListener('change', render);
     togglePre.addEventListener('change', () => { preSection.classList.toggle('hidden', !togglePre.checked); render(); });
     togglePost.addEventListener('change', () => { postSection.classList.toggle('hidden', !togglePost.checked); render(); });
-    ;[customer, deviceModel, serial, passcode, accessories, notes].forEach(el => el.addEventListener('input', updateOutput));
+    ;[passcode, accessories, notes].forEach(el => el.addEventListener('input', updateOutput));
 
     document.getElementById('addPhrase').addEventListener('click', () => {
       if (!phrases.value) return;
@@ -428,9 +382,6 @@
 
     document.getElementById('clear').addEventListener('click', () => {
       // Clear text fields
-      customer.value = '';
-      deviceModel.value = '';
-      serial.value = '';
       passcode.value = '';
       accessories.value = '';
       notes.value = '';
