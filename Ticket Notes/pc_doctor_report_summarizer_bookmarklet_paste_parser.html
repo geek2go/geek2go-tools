@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PC‑Doctor → Customer‑Friendly Summary</title>
+  <style>
+    :root{--ink:#0f172a;--muted:#64748b;--accent:#2563eb;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto}
+    .wrap{max-width:1024px;margin:28px auto;padding:0 16px}
+    h1{font-size:24px;margin:0 0 6px}
+    p{margin:0 0 10px;color:var(--muted)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .row{display:grid;gap:12px}
+    .grid{display:grid;gap:12px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    @media (max-width:860px){.grid-2{grid-template-columns:1fr}}
+    textarea{width:100%;min-height:160px;border:1px solid var(--border);border-radius:12px;padding:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px;font:inherit}
+    select{border:1px solid var(--border);border-radius:10px;padding:8px 10px;font:inherit;background:#fff}
+    .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    button{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    button.secondary{background:#fff;color:var(--accent)}
+    .chip{border:1px solid #c7d2fe;background:#eef2ff;color:#1e40af;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .section-title{font-weight:800}
+    .hint{color:var(--muted);font-size:12px}
+    .out{min-height:220px}
+    label.chk{display:flex;align-items:center;gap:8px}
+    hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PC‑Doctor → Customer‑Friendly Summary</h1>
+  <p>Tick any add‑ons you performed. You can generate a summary <b>with or without</b> pasting a PC‑Doctor report. If you paste one, hardware details will be included.</p>
+
+  <!-- 1) OPTIONAL ADD‑ONS (TOP) -->
+  <div class="card row" style="margin-top:10px">
+    <div class="section-title">1) Optional Add‑Ons (non‑PC‑Doctor)</div>
+
+    <!-- Presets -->
+    <div class="toolbar">
+      <span class="hint" style="margin-right:6px">Presets:</span>
+      <button class="chip" id="preset_quick">Quick Clean</button>
+      <button class="chip" id="preset_newpc">New PC Setup</button>
+      <button class="chip" id="preset_business">Business Standard</button>
+      <button class="chip" id="preset_gaming">Gaming Build</button>
+      <button class="chip" id="preset_lite">Managed Care Lite</button>
+      <button class="chip" id="preset_plus">Managed Care Plus</button>
+      <button class="secondary" id="save_defaults">Save my defaults</button>
+      <button class="secondary" id="load_defaults">Load my defaults</button>
+    </div>
+
+    <div class="grid grid-2">
+      <!-- Malwarebytes -->
+      <div>
+        <label class="chk"><input type="checkbox" id="mbam_chk"> Malwarebytes Scan</label>
+        <div class="toolbar">
+          <label>Result
+            <select id="mbam_result">
+              <option value="Clean">Clean</option>
+              <option value="Threats removed">Threats removed</option>
+              <option value="Infected – manual action taken">Infected – manual action taken</option>
+            </select>
+          </label>
+          <input id="mbam_notes" type="text" placeholder="Notes (optional)"/>
+        </div>
+      </div>
+
+      <!-- Windows/Driver Updates -->
+      <div>
+        <label class="chk"><input type="checkbox" id="updates_chk"> Windows & Driver Updates</label>
+        <div class="toolbar">
+          <label>Status
+            <select id="updates_status">
+              <option value="Completed">Completed</option>
+              <option value="Partial">Partial</option>
+              <option value="Deferred">Deferred</option>
+            </select>
+          </label>
+          <input id="updates_notes" type="text" placeholder="Notes (e.g., BIOS, GPU, optional KB…)"/>
+        </div>
+      </div>
+
+      <!-- Software Installed -->
+      <div>
+        <label class="chk"><input type="checkbox" id="software_chk"> Software Installed</label>
+        <input id="software_list" type="text" placeholder="e.g., Office, Chrome, Adobe Reader"/>
+        <div class="toolbar" style="margin-top:6px">
+          <button class="chip" data-soft="Chrome, Adobe Reader">+ Essentials</button>
+          <button class="chip" data-soft="Office, Chrome, Adobe Reader">+ Office Bundle</button>
+          <button class="chip" data-soft="Chrome, 7‑Zip, VLC">+ Utilities</button>
+          <button class="chip" data-soft="Steam, GPU drivers, RGB software">+ Gaming Apps</button>
+        </div>
+      </div>
+
+      <!-- Other Work -->
+      <div>
+        <label class="chk"><input type="checkbox" id="other_chk"> Other Work</label>
+        <input id="other_notes" type="text" placeholder="e.g., data migration, dust cleaning, cable repair"/>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- Diagnostics/Battery + Maintenance group -->
+    <div class="grid grid-2">
+      <div>
+        <label>Other Diagnostic Tests<br/>
+          <input id="otherDiagnostics" type="text" placeholder="e.g., vendor SSD tool, memtest pass, fan curve test"/>
+        </label>
+        <label style="margin-top:6px">Laptop Battery Health (if applicable)<br/>
+          <input id="batteryHealth" type="text" placeholder="e.g., 92% of design capacity"/>
+        </label>
+      </div>
+      <div>
+        <div class="section-title" style="margin-bottom:6px">Maintenance (grouped)</div>
+        <div class="toolbar">
+          <label class="chk"><input type="checkbox" id="chkChkdsk"> CHKDSK Scan</label>
+          <label class="chk"><input type="checkbox" id="chkTemp"> Temp Files Removed</label>
+          <label class="chk"><input type="checkbox" id="chkRegistry"> Registry Cleaned</label>
+          <label class="chk"><input type="checkbox" id="chkClean"> Device wiped/cleaned</label>
+        </div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- Technician -->
+    <div class="grid">
+      <input id="tech_name" type="text" placeholder="Technician name (optional)"/>
+      <label for="tech_notes" class="section-title">Technician Notes</label>
+      <textarea id="tech_notes" placeholder="Customer‑friendly notes… (ex: Cleaned temp files, verified thermals and fans.)"></textarea>
+    </div>
+  </div>
+
+  <!-- 2) PASTE AREA -->
+  <div class="card row" style="margin-top:12px">
+    <label for="src" class="section-title">2) Paste PC‑Doctor report text (optional)</label>
+    <textarea id="src" placeholder="Ctrl+A → Ctrl+C from Service Center Remote, then paste here… (or leave blank to summarize add‑ons only)"></textarea>
+    <div class="buttons">
+      <button id="summarize">Summarize</button>
+      <button class="secondary" id="sample">Load sample</button>
+      <button class="secondary" id="clear">Clear</button>
+    </div>
+  </div>
+
+  <!-- 3) OUTPUT -->
+  <div class="card row" style="margin-top:12px">
+    <label for="out" class="section-title">3) Copy into your POS</label>
+    <textarea id="out" class="out" placeholder="Summary will appear here…"></textarea>
+    <div class="buttons">
+      <button id="copy">Copy summary</button>
+    </div>
+    <p class="hint">The “Additional Work” section only appears when you check or fill something above.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+
+  // Helpers
+  function L(txt){ return txt.replace(/\r/g,'').split(/\n+/).map(s=>s.trim()).filter(Boolean); }
+  function pick(re, txt){ const m = txt.match(re); return m? (m[1]||m[0]).trim() : ''; }
+  function setChecked(id, v){ const el=$(id); if(el) el.checked=!!v; }
+  function setVal(id, v){ const el=$(id); if(el && typeof v==='string') el.value=v; }
+
+  // CPU: also capture lines without (CPU:x) but with Intel/AMD
+  function parseCPU(txt){
+    const lines = L(txt);
+    const idx = lines.findIndex(s=>/(Intel|AMD)\b.*\(CPU:\s*\d+\)/i.test(s) || /^\d{1,2}th\s+Gen\s+Intel/i.test(s));
+    let header = '';
+    if(idx>=0) header = lines[idx]; else { const alt = lines.find(s=>/^(Intel|AMD)\b.*(Ryzen|Core|Pentium|Celeron|Athlon|Threadripper|EPYC|Xeon)/i.test(s)); if(alt) header = alt; }
+    const block = lines.slice(idx>=0? idx : 0, (idx>=0? idx+40: 60)).join('\n');
+    const cores = pick(/Cores\s+(\d+)/i, block);
+    const threads = pick(/Threads\s+(\d+)/i, block);
+    header = header.replace(/\s*\(CPU:\s*\d+\)\s*/i,'').trim();
+    return {header, cores, threads};
+  }
+
+  // RAM: support DDR4-SDRAM style
+  function parseRAM(txt){
+    const total = pick(/Total Physical Memory\s*([\d.]+\s*GB)/i, txt);
+    const modRe = /(\d{3,6})\s*MB\s*(DDR\d)(?:-[A-Z]+)?\s*\((\d{3,5})\s*MHz\)/ig; // e.g., "DDR4-SDRAM"
+    const mods=[];
+    for(const m of txt.matchAll(modRe)){ const sizeMB=parseInt(m[1],10), gb=Math.round(sizeMB/1024*100)/100; mods.push({gb,type:m[2],mhz:m[3]}); }
+    let modulesPart=''; if(mods.length){ const same=mods.every(x=>x.gb===mods[0].gb); modulesPart = same? `${mods.length}×${mods[0].gb}GB ${mods[0].type} (${mods[0].mhz} MHz)` : `${mods.length} modules ${mods[0].type}`; }
+    return {total, modulesPart};
+  }
+
+  // Storage
+  function parseStorage(txt){
+    const model = pick(/Model\s*Number\s*([^\n]+)/i, txt) || pick(/^(BC\d{3,4}.*|Samsung SSD.*|WDC.*|Seagate.*|Crucial.*|Kingston.*|SK\s*hynix.*)$/im, txt);
+    const capacity = pick(/Total\s*Capacity\s*([\d.]+\s*(?:GB|TB))/i, txt) || pick(/Size\s*([\d.]+\s*(?:GB|TB))/i, txt);
+    const free = pick(/C:\s*[\s\S]*?Volume\s*Free\s*Space\s*([\d.]+\s*(?:GB|TB))/i, txt) || pick(/Volume\s*Free\s*Space\s*([\d.]+\s*(?:GB|TB))/i, txt);
+    return {model, capacity, free};
+  }
+
+  // GPU
+  function parseGPU(txt){
+    const gpus=[]; const re=/(NVIDIA\s+[^\n]+|AMD\s+Radeon[^\n]+|Intel\s+(?:UHD|Iris)[^\n]+)/ig; for(const m of txt.matchAll(re)) gpus.push(m[1].trim());
+    const seen=new Set(); return gpus.filter(g=>{const k=g.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true;}).slice(0,2);
+  }
+
+  // OS
+  function parseOS(txt){
+    const os = pick(/Operating\s*System:\s*([^\n]+)/i, txt);
+    const ver = pick(/Version:\s*([^\n]+)/i, txt);
+    const build = pick(/Build\s*Number:\s*([^\n]+)/i, txt);
+    const date = pick(/Test\s*Date:\s*([^\n]+)/i, txt);
+    return {os, ver, build, date};
+  }
+
+  // Tests (tightened to avoid false failures; "No Cable" is informational)
+  function parseTests(txt){
+    const has = (re)=> new RegExp(re,'i').test(txt);
+    const FAIL_TOKENS = /(Failed|Error|Critical|Bad|SMART\s*(?:Warning|Failure))/i;
+
+    function failedIn(re){
+      const matches = txt.match(new RegExp(re+'[\\s\\S]*?(?:\n(?=[+-]|$)|$)','ig')) || [];
+      return matches.some(block => FAIL_TOKENS.test(block));
+    }
+
+    const cpuPresent = has('Register Test|Stress Test|MMX Test|AVX2 Test');
+    const ramPresent = has('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test');
+    const storagePresent = has('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test');
+    const gpuPresent = has('Shader Rendering|GPU Pipeline Data|Video Memory Test');
+    const netPresent = has('Network Link Test|Internet Communication Test|TCP/IP Internal Loopback Test|Intel NIC Test');
+    const boardPresent = has('System Board|PCI Express Status Test|CMOS|RTC Accuracy Test|TPM Self Test');
+
+    const lines=[];
+    if(cpuPresent) lines.push(`- CPU: ${failedIn('Register Test|Stress Test|MMX Test|AVX2 Test')? 'Issue detected' : 'Passed'}`);
+    if(ramPresent) lines.push(`- RAM: ${failedIn('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test')? 'Issue detected' : 'Passed'}`);
+    if(storagePresent) lines.push(`- Storage: ${failedIn('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test')? 'Issue detected' : 'Passed'}`);
+    if(gpuPresent) lines.push(`- GPU: ${failedIn('Shader Rendering|GPU Pipeline Data|Video Memory Test')? 'Issue detected' : 'Passed'}`);
+
+    if(netPresent){
+      const ethernetNoCable = /Network (?:Link|Cable) Test[\s\S]*?No\s+Cable/i.test(txt) || /Internet Communication Test[\s\S]*?No\s+Cable/i.test(txt);
+      const anyNetFail = failedIn('Network Link Test|Internet Communication Test|TCP/IP Internal Loopback Test|Intel NIC Test');
+      let note;
+      if(anyNetFail){
+        note = 'Issue detected';
+      } else if(ethernetNoCable){
+        const wifiOK = /Wireless Adapter|Wi-?Fi|802\.11|Qualcomm|Intel\(R\) Wi-?Fi/i.test(txt) && /Network Link Test[\s\S]*?Passed/i.test(txt);
+        note = wifiOK? 'Passed (Wi‑Fi OK; Ethernet not connected)' : 'Passed (Ethernet not connected)';
+      } else {
+        note = 'Passed';
+      }
+      lines.push(`- Network: ${note}`);
+    }
+
+    if(boardPresent) lines.push(`- System Board & other components: ${failedIn('PCI Express Status Test|CMOS|System Board|RTC Accuracy Test|TPM Self Test')? 'Issue detected' : 'Passed'}`);
+
+    const overall = FAIL_TOKENS.test(txt)
+      ? 'One or more issues detected.'
+      : (has('Result:\s*(?:Passed|Pass|Success|Completed|No\s*Cable)') ? 'All hardware components tested PASSED. No issues found.' : 'Testing completed. See notes.');
+
+    return {lines, overall};
+  }
+
+  // Add‑ons builder
+  function buildAddOns(){
+    const parts=[];
+    if($('mbam_chk').checked){ let s=`- Malwarebytes: ${$('mbam_result').value}`; const n=$('mbam_notes').value.trim(); if(n) s+=` — ${n}`; parts.push(s); }
+    if($('updates_chk').checked){ let s=`- Windows & Drivers: ${$('updates_status').value}`; const n=$('updates_notes').value.trim(); if(n) s+=` — ${n}`; parts.push(s); }
+    if($('software_chk').checked){ const list=$('software_list').value.trim(); parts.push(`- Software Installed${list? ': '+list:''}`); }
+    if($('other_chk').checked){ const n=$('other_notes').value.trim(); if(n) parts.push(`- Other Work: ${n}`); }
+
+    const od=$('otherDiagnostics').value.trim(); if(od) parts.push(`- Other Diagnostics: ${od}`);
+    const bat=$('batteryHealth').value.trim(); if(bat) parts.push(`- Battery Health: ${bat}`);
+
+    const maint=[]; if($('chkChkdsk').checked) maint.push('CHKDSK Scan'); if($('chkTemp').checked) maint.push('Temp Files Removed'); if($('chkRegistry').checked) maint.push('Registry Cleaned'); if($('chkClean').checked) maint.push('Device wiped/cleaned');
+    if(maint.length) parts.push(`- Maintenance Performed: ${maint.join(', ')}`);
+
+    const tech=$('tech_name').value.trim(); const notes=$('tech_notes').value.trim();
+    return {parts, tech, notes};
+  }
+
+  // Main summary
+  function buildSummary(txt){
+    const src = (txt||'').trim();
+    const add=buildAddOns();
+
+    if(!src){
+      const out=[];
+      if(add.parts.length || add.notes || add.tech){
+        out.push('Additional Work');
+        out.push(...add.parts);
+        if(add.notes) out.push(`- Technician Notes: ${add.notes}`);
+        if(add.tech) out.push(`- Technician: ${add.tech}`);
+      } else {
+        out.push('No PC‑Doctor report pasted and no add‑ons selected.');
+      }
+      return out.join('\n');
+    }
+
+    const cpu=parseCPU(src), ram=parseRAM(src), sto=parseStorage(src), gpus=parseGPU(src), os=parseOS(src), tests=parseTests(src);
+    const out=[];
+    out.push('System Information');
+    out.push(`- CPU: ${cpu.header || 'Not detected'}${cpu.cores? ` (${cpu.cores} cores${cpu.threads? '/'+cpu.threads+' threads':''})`:''}`);
+    out.push(`- Memory: ${ram.total || 'Not detected'}${ram.modulesPart? ' ('+ram.modulesPart+')':''}`);
+    out.push(`- Storage: ${[sto.model, sto.capacity].filter(Boolean).join(' ')}${sto.free? ` • C: ${sto.free} free`:''}` || '- Storage: Not detected');
+    if(gpus.length===1) out.push(`- Graphics: ${gpus[0]}`);
+    if(gpus.length>1) out.push(`- Graphics: ${gpus[0]} + ${gpus[1]}`);
+    out.push(`- OS: ${[os.os, os.ver && os.ver, os.build && 'Build '+os.build].filter(Boolean).join(', ') || 'Not detected'}`);
+    if(os.date) out.push(`- Test Date: ${os.date}`);
+
+    out.push('\nTest Results:');
+    out.push(...tests.lines);
+
+    if(add.parts.length || add.notes || add.tech){
+      out.push('\nAdditional Work');
+      out.push(...add.parts);
+      if(add.notes) out.push(`- Technician Notes: ${add.notes}`);
+      if(add.tech) out.push(`- Technician: ${add.tech}`);
+    }
+
+    out.push('\nOverall Result: '+tests.overall);
+    return out.join('\n');
+  }
+
+  // Presets
+  function applyPreset(name){
+    ['mbam_chk','updates_chk','software_chk','other_chk','chkChkdsk','chkTemp','chkRegistry','chkClean'].forEach(id=>setChecked(id,false));
+    switch(name){
+      case 'quick':
+        setChecked('mbam_chk',true); setVal('mbam_result','Clean'); setVal('mbam_notes','');
+        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','');
+        setChecked('software_chk',true); setVal('software_list','Chrome, Adobe Reader');
+        setChecked('chkTemp',true);
+        break;
+      case 'newpc':
+        setChecked('mbam_chk',true); setVal('mbam_result','Clean');
+        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','Chipset, GPU, BIOS if available');
+        setChecked('software_chk',true); setVal('software_list','Office, Chrome, Adobe Reader, 7‑Zip');
+        setChecked('chkTemp',true); setChecked('chkClean',true);
+        break;
+      case 'business':
+        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','Windows + drivers');
+        setChecked('software_chk',true); setVal('software_list','Office, Chrome, Adobe Reader, Teams, Zoom');
+        setChecked('chkTemp',true);
+        break;
+      case 'gaming':
+        setChecked('updates_chk',true); setVal('updates_status','Completed'); setVal('updates_notes','GPU drivers updated');
+        setChecked('software_chk',true); setVal('software_list','Steam, GPU drivers, RGB software');
+        break;
+      case 'lite':
+        setChecked('updates_chk',true); setVal('updates_status','Completed');
+        setChecked('mbam_chk',true); setVal('mbam_result','Clean');
+        setChecked('chkTemp',true);
+        setVal('other_notes','Enrolled in Managed Care Lite program'); setChecked('other_chk',true);
+        break;
+      case 'plus':
+        setChecked('updates_chk',true); setVal('updates_status','Completed');
+        setChecked('mbam_chk',true); setVal('mbam_result','Clean');
+        setChecked('chkTemp',true); setChecked('chkClean',true);
+        setVal('other_notes','Enrolled in Managed Care Plus program'); setChecked('other_chk',true);
+        break;
+    }
+  }
+
+  // Save/Load defaults
+  function saveDefaults(){
+    const data={
+      mbam_chk: $('mbam_chk').checked, mbam_result: $('mbam_result').value, mbam_notes: $('mbam_notes').value,
+      updates_chk: $('updates_chk').checked, updates_status: $('updates_status').value, updates_notes: $('updates_notes').value,
+      software_chk: $('software_chk').checked, software_list: $('software_list').value,
+      other_chk: $('other_chk').checked, other_notes: $('other_notes').value,
+      otherDiagnostics: $('otherDiagnostics').value, batteryHealth: $('batteryHealth').value,
+      chkChkdsk: $('chkChkdsk').checked, chkTemp: $('chkTemp').checked, chkRegistry: $('chkRegistry').checked, chkClean: $('chkClean').checked,
+      tech_name: $('tech_name').value, tech_notes: $('tech_notes').value
+    };
+    localStorage.setItem('g2g_summarizer_defaults', JSON.stringify(data));
+  }
+  function loadDefaults(){
+    const raw=localStorage.getItem('g2g_summarizer_defaults'); if(!raw) return; try{const d=JSON.parse(raw);
+      setChecked('mbam_chk',d.mbam_chk); setVal('mbam_result',d.mbam_result); setVal('mbam_notes',d.mbam_notes);
+      setChecked('updates_chk',d.updates_chk); setVal('updates_status',d.updates_status); setVal('updates_notes',d.updates_notes);
+      setChecked('software_chk',d.software_chk); setVal('software_list',d.software_list);
+      setChecked('other_chk',d.other_chk); setVal('other_notes',d.other_notes);
+      setVal('otherDiagnostics',d.otherDiagnostics||''); setVal('batteryHealth',d.batteryHealth||'');
+      setChecked('chkChkdsk',d.chkChkdsk); setChecked('chkTemp',d.chkTemp); setChecked('chkRegistry',d.chkRegistry); setChecked('chkClean',d.chkClean);
+      setVal('tech_name',d.tech_name); setVal('tech_notes',d.tech_notes);
+    }catch(e){}
+  }
+
+  // Wire up UI
+  $('summarize').onclick = ()=>{ const src=$('src').value; $('out').value = buildSummary(src); };
+  $('copy').onclick = async ()=>{ const txt=$('out').value; if(!txt) return; try{ await navigator.clipboard.writeText(txt);}catch(e){} };
+  $('clear').onclick = ()=>{ $('src').value=''; $('out').value=''; };
+  $('sample').onclick = ()=>{
+    $('src').value = `Operating System: Microsoft Windows 11 Professional (64-bit)
+Version: 23H2
+Build Number: 22631.5189
+Test Date: 4/15/2025
+Result: No Cable
+
+Intel(R) Core(TM) i5-8350U CPU @ 1.70GHz (CPU:0)
+Cores\t4
+Threads\t8
+
+System Memory
+Total Physical Memory\t16.00 GB
+16384 MB DDR4-SDRAM (2400 MHz)
+
+SK hynix SC401 SATA 1TB
+Model Number\tSK hynix SC401 SATA 1TB
+Size\t953.9 GB
+C:
+Volume Capacity\t952.81 GB
+Volume Free Space\t832.42 GB
+
+Intel(R) UHD Graphics 620
+
+Register Test\tPassed
+Windows Memory Test\tPassed
+SMART Status Test\tPassed
+Network Link Test\tPassed
+TCP/IP Internal Loopback Test\tPassed
+Internet Communication Test\tNo Cable`;
+  };
+
+  // Preset buttons
+  $('preset_quick').onclick = ()=>applyPreset('quick');
+  $('preset_newpc').onclick = ()=>applyPreset('newpc');
+  $('preset_business').onclick = ()=>applyPreset('business');
+  $('preset_gaming').onclick = ()=>applyPreset('gaming');
+  $('preset_lite').onclick = ()=>applyPreset('lite');
+  $('preset_plus').onclick = ()=>applyPreset('plus');
+
+  // Chips
+  document.querySelectorAll('[data-soft]').forEach(btn=>btn.addEventListener('click',()=>{ $('software_chk').checked=true; const add=btn.getAttribute('data-soft'); const cur=$('software_list').value.trim(); $('software_list').value = cur? cur+', '+add : add; }));
+
+  // Save/load defaults
+  $('save_defaults').onclick = saveDefaults;
+  $('load_defaults').onclick = loadDefaults;
+  loadDefaults();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geek2Go Repair Checklist</title>
+  <style>
+    :root {
+      --bg: #0f172a;        /* slate-900 */
+      --panel: #111827;     /* gray-900 */
+      --muted: #94a3b8;     /* slate-400 */
+      --text: #e5e7eb;      /* gray-200 */
+      --accent: #22c55e;    /* green-500 */
+      --accent-2: #06b6d4;  /* cyan-500 */
+      --warn: #f59e0b;      /* amber-500 */
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--text); }
+    header { padding: 18px 20px; border-bottom: 1px solid #1f2937; display:flex; gap:16px; align-items:center; }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+    main { display: grid; grid-template-columns: 1.2fr .9fr; gap: 18px; padding: 18px; }
+    .card { background: var(--panel); border: 1px solid #1f2937; border-radius: var(--radius); padding: 14px; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
+    label { font-size: 13px; color: var(--muted); }
+    select, input[type="text"], textarea { background:#0b1220; color:var(--text); border:1px solid #1f2937; border-radius: 10px; padding:8px 10px; font-size:14px; width:100%; }
+    select, input[type="text"] { height: 36px; }
+    textarea { min-height: 80px; resize: vertical; }
+
+    .section-title { font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:#9ca3af; margin: 8px 0 10px; }
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px 14px; }
+    .hidden { display:none; }
+
+    .btns { display:flex; gap:10px; flex-wrap:wrap; }
+    button { border:1px solid #1f2937; background:#0b1220; color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
+    button.primary { background: #111827; border-color:#334155; }
+    button.accent { background: #052e2b; border-color:#134e4a; color:#a7f3d0; }
+    button.warn { background: #3a1a00; border-color:#78350f; color:#fed7aa; }
+    button:active { transform: translateY(1px); }
+
+    #output { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; background:#0b1220; border-radius: var(--radius); border:1px solid #1f2937; padding: 12px; min-height: 260px; }
+
+    .checklist { border:1px dashed #334155; border-radius: 12px; padding: 10px; }
+    .checklist .item { display:flex; align-items:center; gap:8px; padding:4px 2px; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .spacer { height: 8px; }
+
+    @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a4 4 0 0 1 4-4h4v4a4 4 0 0 1-4 4H3V7Zm10-4h4a4 4 0 0 1 4 4v4h-4a4 4 0 0 1-4-4V3ZM3 13h4a4 4 0 0 1 4 4v4H7a4 4 0 0 1-4-4v-4Zm14 0h4v4a4 4 0 0 1-4 4h-4v-4a4 4 0 0 1 4-4Z" fill="#22c55e"/></svg>
+    <h1>Geek2Go – Repair Checklist (Phones • Tablets • Consoles)</h1>
+  </header>
+
+  <main>
+    <!-- Left: Form -->
+    <section class="card">
+      <div class="row">
+        <div style="flex: 1 1 180px">
+          <label for="deviceType">Device Type</label>
+          <select id="deviceType">
+            <option value="Phone">Phone</option>
+            <option value="Tablet">Tablet</option>
+            <option value="Console">Game Console</option>
+          </select>
+        </div>
+        <div style="flex: 1 1 180px">
+          <label for="phaseToggles">Phases</label>
+          <div id="phaseToggles" class="row" style="gap:14px">
+            <label><input id="togglePre" type="checkbox" checked /> Pre‑Diagnostics</label>
+            <label><input id="togglePost" type="checkbox" checked /> Post‑Repair</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <label for="customer">Customer</label>
+          <input id="customer" type="text" placeholder="Name (optional)" />
+        </div>
+        <div style="flex:1 1 220px">
+          <label for="deviceModel">Device Model</label>
+          <input id="deviceModel" type="text" placeholder="e.g., iPhone 13 Pro / PS5" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <label for="serial">Serial / IMEI</label>
+          <input id="serial" type="text" placeholder="Optional" />
+        </div>
+        <div id="passcodeWrap" style="flex:1 1 220px">
+          <label for="passcode">Passcode Provided?</label>
+          <select id="passcode">
+            <option value="">—</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex: 1 1 100%">
+          <label for="accessories">Accessories Provided (list)</label>
+          <input id="accessories" type="text" placeholder="Case, charger, SIM, SD card, controllers, HDMI, power cord…" />
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div id="preSection" class="checklist">
+        <div class="section-title">Pre‑Diagnostics / Check‑In</div>
+        <div id="preList" class="grid"></div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div id="postSection" class="checklist">
+        <div class="section-title">Post‑Repair / Check‑Out</div>
+        <div id="postList" class="grid"></div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="row">
+        <div style="flex: 1 1 100%">
+          <label for="notes">Technician Notes</label>
+          <textarea id="notes" placeholder="Observations, parts replaced, thermal paste reapplied, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1 1 auto">
+          <label for="phrases">Common Ticket Phrases</label>
+          <div class="row" style="gap:8px">
+            <select id="phrases" style="flex:1 1 auto">
+              <option value="">— Select a phrase to append to Notes —</option>
+              <option>All major functions tested and working properly.</option>
+              <option>Customer did not provide passcode; limited testing performed.</option>
+              <option>Liquid damage indicators present; repair not guaranteed.</option>
+              <option>Thermal paste reapplied; fans cleaned; system runs cooler.</option>
+              <option>Device cleaned and returned with all accessories.</option>
+              <option>Cosmetic damage noted at check-in; unchanged post-repair.</option>
+            </select>
+            <button id="addPhrase" class="primary" type="button">Add to Notes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="btns">
+        <button id="generate" class="accent" type="button">Generate Summary</button>
+        <button id="copy" class="primary" type="button">Copy to Clipboard</button>
+        <button id="clear" class="warn" type="button">Clear Form</button>
+        <span class="muted">Output updates live; "Generate" will refresh it manually.</span>
+      </div>
+    </section>
+
+    <!-- Right: Output -->
+    <aside class="card">
+      <div class="section-title">Output (Text‑Only – paste into your POS ticket)</div>
+      <div id="output" contenteditable="false"></div>
+      <div class="muted" style="margin-top:8px">Tip: Click "Copy to Clipboard" or select text manually (Ctrl/Cmd+A → Ctrl/Cmd+C).</div>
+    </aside>
+  </main>
+
+  <script>
+    const preList = document.getElementById('preList');
+    const postList = document.getElementById('postList');
+    const preSection = document.getElementById('preSection');
+    const postSection = document.getElementById('postSection');
+    const togglePre = document.getElementById('togglePre');
+    const togglePost = document.getElementById('togglePost');
+    const deviceType = document.getElementById('deviceType');
+    const passcodeWrap = document.getElementById('passcodeWrap');
+
+    const customer = document.getElementById('customer');
+    const deviceModel = document.getElementById('deviceModel');
+    const serial = document.getElementById('serial');
+    const passcode = document.getElementById('passcode');
+    const accessories = document.getElementById('accessories');
+    const notes = document.getElementById('notes');
+    const phrases = document.getElementById('phrases');
+
+    const output = document.getElementById('output');
+
+    const TEMPLATES = {
+      Phone: {
+        Pre: [
+          "Device powers on",
+          "Screen/touch responsive",
+          "Buttons (power, volume, mute)",
+          "Sound (earpiece, speaker, mic)",
+          "Vibration/Haptics",
+          "Wi‑Fi / Cellular / Bluetooth / NFC",
+          "Charging port",
+          "Headphone jack (if present)",
+          "Camera(s) / Flash",
+          "Fingerprint / Face ID (if applicable)",
+          "SIM/SD slot",
+          "Accessories accounted for",
+          "Cosmetic inspection (scratches/cracks/dents/LDI)"
+        ],
+        Post: [
+          "Repair completed successfully",
+          "Device powers on",
+          "Screen/touch responsive",
+          "Buttons (power, volume, mute)",
+          "Sound (earpiece, speaker, mic)",
+          "Vibration/Haptics",
+          "Wi‑Fi / Cellular / Bluetooth / NFC",
+          "Charging port",
+          "Camera(s) / Flash",
+          "Fingerprint / Face ID (if applicable)",
+          "SIM/SD slot",
+          "Device cleaned / sanitized",
+          "All accessories returned",
+          "Final cosmetic inspection"
+        ]
+      },
+      Tablet: {
+        Pre: [
+          "Device powers on",
+          "Touchscreen responsive across display",
+          "Buttons (power, volume, home if present)",
+          "Sound (speakers, mic)",
+          "Wi‑Fi / Bluetooth / Cellular (if applicable)",
+          "Charging port",
+          "Camera(s) / Flash",
+          "Accessories accounted for (case, stylus, keyboard, charger, SIM)",
+          "Cosmetic inspection (scratches/cracks/dents/LDI)"
+        ],
+        Post: [
+          "Repair completed successfully",
+          "Device powers on",
+          "Touchscreen responsive across display",
+          "Buttons (power, volume, home if present)",
+          "Sound (speakers, mic)",
+          "Wi‑Fi / Bluetooth / Cellular (if applicable)",
+          "Charging port",
+          "Camera(s) / Flash",
+          "Device cleaned / sanitized",
+          "All accessories returned",
+          "Final cosmetic inspection"
+        ]
+      },
+      Console: {
+        Pre: [
+          "Console powers on",
+          "Boots to home screen",
+          "Disc drive reads discs (if applicable)",
+          "Controller(s) sync / function",
+          "HDMI / Display output working",
+          "Sound output working",
+          "Wi‑Fi / Ethernet connectivity",
+          "USB ports working",
+          "Overheating symptoms present?",
+          "Accessories accounted for (controllers, power cord, HDMI, storage)",
+          "Cosmetic inspection (scratches/dents/dust)"
+        ],
+        Post: [
+          "Repair completed successfully",
+          "Console powers on",
+          "Boots to home screen",
+          "Disc drive reads discs (if applicable)",
+          "Controller(s) sync / function",
+          "HDMI / Display output working",
+          "Sound output working",
+          "Wi‑Fi / Ethernet connectivity",
+          "USB ports working",
+          "Thermal paste reapplied (if applicable)",
+          "Fans cleaned / dust removed",
+          "Overheating resolved",
+          "Console cleaned / sanitized",
+          "All accessories returned",
+          "Final cosmetic inspection"
+        ]
+      }
+    };
+
+    function createChecklist(container, items) {
+      container.innerHTML = '';
+      items.forEach((label, i) => {
+        const id = `${container.id}_${i}`;
+        const row = document.createElement('label');
+        row.className = 'item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.dataset.label = label;
+        cb.addEventListener('change', updateOutput);
+        const span = document.createElement('span');
+        span.textContent = label;
+        row.appendChild(cb);
+        row.appendChild(span);
+        container.appendChild(row);
+      });
+    }
+
+    function render() {
+      const device = deviceType.value;
+      // Show/Hide passcode field (not relevant for consoles)
+      passcodeWrap.classList.toggle('hidden', device === 'Console');
+      if (togglePre.checked) createChecklist(preList, TEMPLATES[device].Pre); else preList.innerHTML = '';
+      if (togglePost.checked) createChecklist(postList, TEMPLATES[device].Post); else postList.innerHTML = '';
+      updateOutput();
+    }
+
+    function sectionText(title, container) {
+      const boxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+      const lines = [];
+      lines.push(`### ${title}`);
+      boxes.forEach(b => {
+        const mark = b.checked ? '[x]' : '[ ]';
+        lines.push(`- ${mark} ${b.dataset.label}`);
+      });
+      return lines.join('\n');
+    }
+
+    function buildOutput() {
+      const device = deviceType.value;
+      const parts = [];
+      const time = new Date().toLocaleString();
+      parts.push(`====== ${device} Repair Checklist ======`);
+      parts.push(`Date: ${time}`);
+      if (customer.value.trim()) parts.push(`Customer: ${customer.value.trim()}`);
+      if (deviceModel.value.trim()) parts.push(`Device: ${deviceModel.value.trim()}`);
+      if (serial.value.trim()) parts.push(`Serial/IMEI: ${serial.value.trim()}`);
+      if (device !== 'Console' && passcode.value) parts.push(`Passcode Provided: ${passcode.value}`);
+      if (accessories.value.trim()) parts.push(`Accessories: ${accessories.value.trim()}`);
+      parts.push('');
+
+      if (togglePre.checked) parts.push(sectionText('Pre-Diagnostics / Check-In', preList), '');
+      if (togglePost.checked) parts.push(sectionText('Post-Repair / Check-Out', postList), '');
+
+      if (notes.value.trim()) parts.push(`Tech Notes: ${notes.value.trim()}`);
+      parts.push('==================================');
+      return parts.join('\n');
+    }
+
+    function updateOutput() {
+      output.textContent = buildOutput();
+    }
+
+    // Events
+    deviceType.addEventListener('change', render);
+    togglePre.addEventListener('change', () => { preSection.classList.toggle('hidden', !togglePre.checked); render(); });
+    togglePost.addEventListener('change', () => { postSection.classList.toggle('hidden', !togglePost.checked); render(); });
+    ;[customer, deviceModel, serial, passcode, accessories, notes].forEach(el => el.addEventListener('input', updateOutput));
+
+    document.getElementById('addPhrase').addEventListener('click', () => {
+      if (!phrases.value) return;
+      if (notes.value.trim()) notes.value += `\n${phrases.value}`; else notes.value = phrases.value;
+      notes.dispatchEvent(new Event('input'));
+    });
+
+    document.getElementById('generate').addEventListener('click', updateOutput);
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      const text = output.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Summary copied to clipboard.');
+      } catch (e) {
+        // Fallback: select and copy
+        const range = document.createRange();
+        range.selectNodeContents(output);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        try { document.execCommand('copy'); alert('Summary copied to clipboard.'); } catch (_) { alert('Press Ctrl/Cmd+C to copy.'); }
+        sel.removeAllRanges();
+      }
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      // Clear text fields
+      customer.value = '';
+      deviceModel.value = '';
+      serial.value = '';
+      passcode.value = '';
+      accessories.value = '';
+      notes.value = '';
+      // Uncheck all boxes
+      [preList, postList].forEach(container => {
+        container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      });
+      updateOutput();
+    });
+
+    // Init
+    render();
+  </script>
+</body>
+</html>
