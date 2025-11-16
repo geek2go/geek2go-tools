@@ -4,31 +4,92 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PC‑Doctor → Customer‑Friendly Summary</title>
+  <link rel="stylesheet" href="shared.css">
   <style>
-    :root{--ink:#0f172a;--muted:#64748b;--accent:#2563eb;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0}
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto}
-    .wrap{max-width:1024px;margin:28px auto;padding:0 16px}
-    h1{font-size:24px;margin:0 0 6px}
-    p{margin:0 0 10px;color:var(--muted)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .row{display:grid;gap:12px}
-    .grid{display:grid;gap:12px}
-    .grid-2{grid-template-columns:1fr 1fr}
-    @media (max-width:860px){.grid-2{grid-template-columns:1fr}}
-    textarea{width:100%;min-height:160px;border:1px solid var(--border);border-radius:12px;padding:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-    input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px;font:inherit}
-    select{border:1px solid var(--border);border-radius:10px;padding:8px 10px;font:inherit;background:#fff}
-    .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-    button{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-    button.secondary{background:#fff;color:var(--accent)}
-    .chip{border:1px solid #c7d2fe;background:#eef2ff;color:#1e40af;border-radius:999px;padding:6px 10px;cursor:pointer}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-    .section-title{font-weight:800}
-    .hint{color:var(--muted);font-size:12px}
-    .out{min-height:220px}
-    label.chk{display:flex;align-items:center;gap:8px}
-    hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
+    :root {
+      --bg: #f1f5f9;
+      --card-bg: #fff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --input-bg: #fff;
+      --button-bg: #2563eb;
+      --button-secondary-bg: #fff;
+      --button-secondary-color: #2563eb;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --chip-border: #c7d2fe;
+      --chip-bg: #eef2ff;
+      --chip-color: #1e40af;
+      --radius: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 1024px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .row {
+      display: grid;
+    }
+
+    textarea {
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    select {
+      background: #fff;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .section-title {
+      font-weight: 800;
+    }
+
+    .out {
+      min-height: 220px;
+    }
+
+    label.chk {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 8px 0;
+    }
   </style>
 </head>
 <body>
@@ -168,26 +229,40 @@
   function setChecked(id, v){ const el=$(id); if(el) el.checked=!!v; }
   function setVal(id, v){ const el=$(id); if(el && typeof v==='string') el.value=v; }
 
-  // CPU: also capture lines without (CPU:x) but with Intel/AMD
+  // CPU parser - simplified to find Intel/AMD processors
   function parseCPU(txt){
-    const lines = L(txt);
-    const idx = lines.findIndex(s=>/(Intel|AMD)\b.*\(CPU:\s*\d+\)/i.test(s) || /^\d{1,2}th\s+Gen\s+Intel/i.test(s));
-    let header = '';
-    if(idx>=0) header = lines[idx]; else { const alt = lines.find(s=>/^(Intel|AMD)\b.*(Ryzen|Core|Pentium|Celeron|Athlon|Threadripper|EPYC|Xeon)/i.test(s)); if(alt) header = alt; }
-    const block = lines.slice(idx>=0? idx : 0, (idx>=0? idx+40: 60)).join('\n');
-    const cores = pick(/Cores\s+(\d+)/i, block);
-    const threads = pick(/Threads\s+(\d+)/i, block);
-    header = header.replace(/\s*\(CPU:\s*\d+\)\s*/i,'').trim();
+    // Look for common CPU patterns (Intel or AMD)
+    const cpuLine = txt.match(/(Intel|AMD).*(Core|Ryzen|Pentium|Celeron|Athlon|Threadripper|Xeon)[^\n]*/i);
+    let header = cpuLine ? cpuLine[0].replace(/\(CPU:\s*\d+\)/i, '').trim() : '';
+
+    // Extract cores and threads from nearby text
+    const cores = pick(/Cores\s+(\d+)/i, txt);
+    const threads = pick(/Threads\s+(\d+)/i, txt);
+
     return {header, cores, threads};
   }
 
-  // RAM: support DDR4-SDRAM style
+  // RAM parser - extract total memory and module details
   function parseRAM(txt){
     const total = pick(/Total Physical Memory\s*([\d.]+\s*GB)/i, txt);
-    const modRe = /(\d{3,6})\s*MB\s*(DDR\d)(?:-[A-Z]+)?\s*\((\d{3,5})\s*MHz\)/ig; // e.g., "DDR4-SDRAM"
-    const mods=[];
-    for(const m of txt.matchAll(modRe)){ const sizeMB=parseInt(m[1],10), gb=Math.round(sizeMB/1024*100)/100; mods.push({gb,type:m[2],mhz:m[3]}); }
-    let modulesPart=''; if(mods.length){ const same=mods.every(x=>x.gb===mods[0].gb); modulesPart = same? `${mods.length}×${mods[0].gb}GB ${mods[0].type} (${mods[0].mhz} MHz)` : `${mods.length} modules ${mods[0].type}`; }
+
+    // Match RAM modules (e.g., "16384 MB DDR4-SDRAM (2400 MHz)")
+    const modRe = /(\d{3,6})\s*MB\s*(DDR\d)(?:-[A-Z]+)?\s*\((\d{3,5})\s*MHz\)/ig;
+    const mods = [];
+
+    for(const m of txt.matchAll(modRe)){
+      const gb = Math.round(parseInt(m[1], 10) / 1024 * 100) / 100;
+      mods.push({gb, type: m[2], mhz: m[3]});
+    }
+
+    let modulesPart = '';
+    if(mods.length){
+      const allSameSize = mods.every(x => x.gb === mods[0].gb);
+      modulesPart = allSameSize
+        ? `${mods.length}×${mods[0].gb}GB ${mods[0].type} (${mods[0].mhz} MHz)`
+        : `${mods.length} modules ${mods[0].type}`;
+    }
+
     return {total, modulesPart};
   }
 
@@ -214,49 +289,69 @@
     return {os, ver, build, date};
   }
 
-  // Tests (tightened to avoid false failures; "No Cable" is informational)
+  // Test results parser - simplified to detect component tests and failures
   function parseTests(txt){
-    const has = (re)=> new RegExp(re,'i').test(txt);
-    const FAIL_TOKENS = /(Failed|Error|Critical|Bad|SMART\s*(?:Warning|Failure))/i;
+    const FAIL_TOKENS = /(Failed|Error|Critical|Bad|SMART\s*Warning|SMART\s*Failure)/i;
 
-    function failedIn(re){
-      const matches = txt.match(new RegExp(re+'[\\s\\S]*?(?:\n(?=[+-]|$)|$)','ig')) || [];
+    // Check if a test category exists
+    const has = (pattern) => new RegExp(pattern, 'i').test(txt);
+
+    // Check if any tests in a category failed
+    const hasFailed = (pattern) => {
+      const matches = txt.match(new RegExp(pattern + '[\\s\\S]{0,100}', 'ig')) || [];
       return matches.some(block => FAIL_TOKENS.test(block));
+    };
+
+    const lines = [];
+
+    // CPU Tests
+    if(has('Register Test|Stress Test|MMX Test|AVX2 Test')){
+      const failed = hasFailed('Register Test|Stress Test|MMX Test|AVX2 Test');
+      lines.push(`- CPU: ${failed ? 'Issue detected' : 'Passed'}`);
     }
 
-    const cpuPresent = has('Register Test|Stress Test|MMX Test|AVX2 Test');
-    const ramPresent = has('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test');
-    const storagePresent = has('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test');
-    const gpuPresent = has('Shader Rendering|GPU Pipeline Data|Video Memory Test');
-    const netPresent = has('Network Link Test|Internet Communication Test|TCP/IP Internal Loopback Test|Intel NIC Test');
-    const boardPresent = has('System Board|PCI Express Status Test|CMOS|RTC Accuracy Test|TPM Self Test');
+    // RAM Tests
+    if(has('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test')){
+      const failed = hasFailed('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test');
+      lines.push(`- RAM: ${failed ? 'Issue detected' : 'Passed'}`);
+    }
 
-    const lines=[];
-    if(cpuPresent) lines.push(`- CPU: ${failedIn('Register Test|Stress Test|MMX Test|AVX2 Test')? 'Issue detected' : 'Passed'}`);
-    if(ramPresent) lines.push(`- RAM: ${failedIn('Windows Memory Test|Checkerboard Test|Modulo20 Test|Moving Inversion Test')? 'Issue detected' : 'Passed'}`);
-    if(storagePresent) lines.push(`- Storage: ${failedIn('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test')? 'Issue detected' : 'Passed'}`);
-    if(gpuPresent) lines.push(`- GPU: ${failedIn('Shader Rendering|GPU Pipeline Data|Video Memory Test')? 'Issue detected' : 'Passed'}`);
+    // Storage Tests
+    if(has('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test')){
+      const failed = hasFailed('SMART Status Test|NVMe Status Test|Targeted Read Test|Wear Level Test');
+      lines.push(`- Storage: ${failed ? 'Issue detected' : 'Passed'}`);
+    }
 
-    if(netPresent){
-      const ethernetNoCable = /Network (?:Link|Cable) Test[\s\S]*?No\s+Cable/i.test(txt) || /Internet Communication Test[\s\S]*?No\s+Cable/i.test(txt);
-      const anyNetFail = failedIn('Network Link Test|Internet Communication Test|TCP/IP Internal Loopback Test|Intel NIC Test');
-      let note;
-      if(anyNetFail){
-        note = 'Issue detected';
-      } else if(ethernetNoCable){
-        const wifiOK = /Wireless Adapter|Wi-?Fi|802\.11|Qualcomm|Intel\(R\) Wi-?Fi/i.test(txt) && /Network Link Test[\s\S]*?Passed/i.test(txt);
-        note = wifiOK? 'Passed (Wi‑Fi OK; Ethernet not connected)' : 'Passed (Ethernet not connected)';
+    // GPU Tests
+    if(has('Shader Rendering|GPU Pipeline Data|Video Memory Test')){
+      const failed = hasFailed('Shader Rendering|GPU Pipeline Data|Video Memory Test');
+      lines.push(`- GPU: ${failed ? 'Issue detected' : 'Passed'}`);
+    }
+
+    // Network Tests (with special handling for "No Cable")
+    if(has('Network Link Test|Internet Communication Test|TCP/IP')){
+      const failed = hasFailed('Network Link Test|Internet Communication Test|TCP/IP');
+      const noCable = /No\s+Cable/i.test(txt);
+
+      if(failed){
+        lines.push('- Network: Issue detected');
+      } else if(noCable){
+        lines.push('- Network: Passed (Ethernet not connected)');
       } else {
-        note = 'Passed';
+        lines.push('- Network: Passed');
       }
-      lines.push(`- Network: ${note}`);
     }
 
-    if(boardPresent) lines.push(`- System Board & other components: ${failedIn('PCI Express Status Test|CMOS|System Board|RTC Accuracy Test|TPM Self Test')? 'Issue detected' : 'Passed'}`);
+    // System Board Tests
+    if(has('System Board|PCI Express Status Test|CMOS|RTC Accuracy Test|TPM Self Test')){
+      const failed = hasFailed('System Board|PCI Express Status Test|CMOS|RTC Accuracy Test|TPM Self Test');
+      lines.push(`- System Board & other components: ${failed ? 'Issue detected' : 'Passed'}`);
+    }
 
+    // Overall result
     const overall = FAIL_TOKENS.test(txt)
       ? 'One or more issues detected.'
-      : (has('Result:\s*(?:Passed|Pass|Success|Completed|No\s*Cable)') ? 'All hardware components tested PASSED. No issues found.' : 'Testing completed. See notes.');
+      : 'All hardware components tested PASSED. No issues found.';
 
     return {lines, overall};
   }
