@@ -45,7 +45,7 @@ These are standalone HTML files with no dependencies:
 
 ## Live Demo
 
-Visit the [GitHub Pages site](https://YOUR-USERNAME.github.io/geek2go-tools/) to use the tools online without downloading.
+Visit the [GitHub Pages site](https://geek2go.github.io/geek2go-tools/) to use the tools online without downloading.
 
 ## Development
 
