@@ -342,12 +342,24 @@
     const seen=new Set(); return gpus.filter(g=>{const k=g.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true;}).slice(0,2);
   }
 
-  // OS
+  // OS - handles multiple report format variations
   function parseOS(txt){
-    const os = pick(/Operating\s*System:\s*([^\n]+)/i, txt);
-    const ver = pick(/Version:\s*([^\n]+)/i, txt);
-    const build = pick(/Build\s*Number:\s*([^\n]+)/i, txt);
-    const date = pick(/Test\s*Date:\s*([^\n]+)/i, txt);
+    // Try multiple patterns for Operating System
+    let os = pick(/Operating\s*System:\s*([^\n]+)/i, txt);
+    if (!os) os = pick(/\bOS:\s*([^\n]+)/i, txt);
+
+    // Try multiple patterns for version
+    let ver = pick(/\bVersion:\s*([^\n]+)/i, txt);
+    if (!ver) ver = pick(/OS\s*Version:\s*([^\n]+)/i, txt);
+
+    // Try multiple patterns for build number
+    let build = pick(/Build\s*Number:\s*([^\n]+)/i, txt);
+    if (!build) build = pick(/\bBuild:\s*([^\n]+)/i, txt);
+
+    // Test date
+    let date = pick(/Test\s*Date:\s*([^\n]+)/i, txt);
+    if (!date) date = pick(/\bDate:\s*([^\n]+)/i, txt);
+
     return {os, ver, build, date};
   }
 
