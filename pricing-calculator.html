@@ -675,6 +675,41 @@
             </label>
           </div>
         </div>
+
+        <!-- DisplayShield Card for Manual Mode -->
+        <div id="ds-manual-card" class="card ds-card">
+          <div class="ds-header">
+            <div>
+              <div class="section-title" style="margin:0;">DisplayShield</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Screen protection & warranty</div>
+            </div>
+            <label class="ds-toggle-label">
+              <input type="checkbox" id="ds-manual-toggle">
+              <span>Add</span>
+            </label>
+          </div>
+          <div id="ds-manual-options" style="display:none; margin-top:12px;">
+            <div style="font-size:13px; color:var(--muted); font-weight:500;">Customer deductible at time of claim:</div>
+            <div class="deductible-tiles" id="ds-manual-tiles">
+              <label class="deductible-tile">
+                <input type="radio" name="manual-deductible" value="0">
+                <div class="tile-amount">$0</div>
+              </label>
+              <label class="deductible-tile selected">
+                <input type="radio" name="manual-deductible" value="29" checked>
+                <div class="tile-amount">$29</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="manual-deductible" value="49">
+                <div class="tile-amount">$49</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="manual-deductible" value="99">
+                <div class="tile-amount">$99</div>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -795,6 +830,7 @@
   let iphoneRepairs = []; // {repair, price, isSecondary}
   let manualParts = []; // {name, cost}
   let dsEnabled = false;
+  let dsManualEnabled = false;
   let dsDeductible = 29;
 
   // Initialize
@@ -901,10 +937,28 @@
       calculate();
     });
 
-    // Deductible tiles
-    document.querySelectorAll('.deductible-tile').forEach(tile => {
+    // Deductible tiles (iPhone mode)
+    document.querySelectorAll('#ds-card .deductible-tile').forEach(tile => {
       tile.addEventListener('click', () => {
-        document.querySelectorAll('.deductible-tile').forEach(t => t.classList.remove('selected'));
+        document.querySelectorAll('#ds-card .deductible-tile').forEach(t => t.classList.remove('selected'));
+        tile.classList.add('selected');
+        tile.querySelector('input').checked = true;
+        dsDeductible = parseInt(tile.querySelector('input').value);
+        calculate();
+      });
+    });
+
+    // DisplayShield manual toggle
+    $('ds-manual-toggle').addEventListener('change', (e) => {
+      dsManualEnabled = e.target.checked;
+      $('ds-manual-options').style.display = dsManualEnabled ? '' : 'none';
+      calculate();
+    });
+
+    // Deductible tiles (Manual mode)
+    document.querySelectorAll('#ds-manual-tiles .deductible-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        document.querySelectorAll('#ds-manual-tiles .deductible-tile').forEach(t => t.classList.remove('selected'));
         tile.classList.add('selected');
         tile.querySelector('input').checked = true;
         dsDeductible = parseInt(tile.querySelector('input').value);
@@ -985,6 +1039,9 @@
         $('manual-device').value = '';
         manualParts = [];
         renderParts();
+        $('ds-manual-toggle').checked = false;
+        $('ds-manual-options').style.display = 'none';
+        dsManualEnabled = false;
       }
       calculate();
     });
@@ -1175,7 +1232,11 @@
     });
 
     const total = labor + partsTotal + shipping;
-    const finalTotal = Math.ceil(total);
+    const baseTotal = Math.ceil(total);
+
+    // DisplayShield charge (rounded up to nearest $10, based on pre-DS total as screen price)
+    const dsAdd = dsManualEnabled ? getDSCharge(baseTotal, dsDeductible) : 0;
+    const finalTotal = baseTotal + dsAdd;
 
     // Update total display
     $('total-display').textContent = '$' + finalTotal;
@@ -1188,7 +1249,8 @@
       repairText = partNames.slice(0, -1).join(', ') + ' & ' + partNames[partNames.length - 1];
     }
 
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${device} ${repairText}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
+    const repairLabel = dsAdd > 0 ? `${repairText} + DisplayShield` : repairText;
+    const sms = `Hi! Here's your quote from Geek2Go:\n\n${device} ${repairLabel}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
     $('sms-out').value = sms;
 
     // Build detailed breakdown
@@ -1212,6 +1274,10 @@
     if (shipping > 0) {
       const shippingType = shipping === 25 ? 'Overnight' : '2-Day';
       lines.push(`${'Shipping (' + shippingType + '):'.padEnd(25)} $${shipping.toFixed(2)}`);
+    }
+
+    if (dsAdd > 0) {
+      lines.push(`${'DisplayShield:'.padEnd(25)} +$${dsAdd}  ($${dsDeductible} deductible)`);
     }
 
     lines.push('');
