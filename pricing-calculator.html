@@ -415,6 +415,79 @@
       padding: 12px;
       text-align: center;
     }
+
+    /* DisplayShield */
+    .ds-card {
+      border: 2px solid var(--accent) !important;
+      background: #fff8f8;
+    }
+
+    .ds-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ds-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .ds-toggle-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .deductible-tiles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .deductible-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 8px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .deductible-tile:hover {
+      border-color: var(--accent);
+    }
+
+    .deductible-tile.selected {
+      border-color: var(--accent);
+      background: #fef2f2;
+    }
+
+    .deductible-tile input[type="radio"] {
+      display: none;
+    }
+
+    .deductible-tile .tile-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .deductible-tile .tile-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -466,6 +539,41 @@
 
           <div id="iphone-repairs-list" class="repairs-list">
             <div class="empty-state">No additional repairs</div>
+          </div>
+        </div>
+
+        <!-- DisplayShield Card (shown when screen repair selected) -->
+        <div id="ds-card" class="card ds-card" style="display:none;">
+          <div class="ds-header">
+            <div>
+              <div class="section-title" style="margin:0;">DisplayShield</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Screen protection & warranty</div>
+            </div>
+            <label class="ds-toggle-label">
+              <input type="checkbox" id="ds-toggle">
+              <span>Add</span>
+            </label>
+          </div>
+          <div id="ds-options" style="display:none; margin-top:12px;">
+            <div style="font-size:13px; color:var(--muted); font-weight:500;">Customer deductible at time of claim:</div>
+            <div class="deductible-tiles">
+              <label class="deductible-tile">
+                <input type="radio" name="deductible" value="0">
+                <div class="tile-amount">$0</div>
+              </label>
+              <label class="deductible-tile selected">
+                <input type="radio" name="deductible" value="29" checked>
+                <div class="tile-amount">$29</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="deductible" value="49">
+                <div class="tile-amount">$49</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="deductible" value="99">
+                <div class="tile-amount">$99</div>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -656,10 +764,38 @@
     "Back Glass (Adhered)"
   ];
 
+  // DisplayShield store costs by deductible tier
+  // Each entry: [maxScreenPrice, storeCost]
+  // UPDATE THESE WITH ACTUAL COSTS FROM YOUR DISPLAYSHIELD VENDOR
+  const DS_COSTS = {
+    0:  [[100, 9.41],  [150, 13.26], [200, 19.89], [280, 26.52], [360, 33.15], [Infinity, 39.91]],
+    29: [[100, 6.76],  [150, 9.41],  [200, 16.04], [280, 22.67], [360, 29.30], [Infinity, 35.93]],
+    49: [[100, 5.41],  [150, 7.26],  [200, 13.26], [280, 16.04], [360, 22.67], [Infinity, 29.30]],
+    99: [[100, 3.76],  [150, 5.41],  [200, 9.41],  [280, 13.26], [360, 16.04], [Infinity, 22.67]]
+  };
+
+  function getDSStoreCost(screenPrice, deductible) {
+    const tiers = DS_COSTS[deductible] || DS_COSTS[29];
+    for (const [cap, cost] of tiers) {
+      if (screenPrice <= cap) return cost;
+    }
+    return tiers[tiers.length - 1][1];
+  }
+
+  function getDSCharge(screenPrice, deductible) {
+    return Math.ceil(getDSStoreCost(screenPrice, deductible) / 10) * 10;
+  }
+
+  function isScreenRepair(repairName) {
+    return repairName.includes('Screen');
+  }
+
   // State
   let currentMode = 'iphone';
   let iphoneRepairs = []; // {repair, price, isSecondary}
   let manualParts = []; // {name, cost}
+  let dsEnabled = false;
+  let dsDeductible = 29;
 
   // Initialize
   function init() {
@@ -723,10 +859,23 @@
       populateRepairOptions(e.target.value);
       iphoneRepairs = [];
       renderIphoneRepairs();
+      $('ds-card').style.display = 'none';
+      $('ds-toggle').checked = false;
+      $('ds-options').style.display = 'none';
+      dsEnabled = false;
       calculate();
     });
 
-    $('iphone-repair').addEventListener('change', calculate);
+    $('iphone-repair').addEventListener('change', (e) => {
+      const showDS = isScreenRepair(e.target.value);
+      $('ds-card').style.display = showDS ? '' : 'none';
+      if (!showDS) {
+        $('ds-toggle').checked = false;
+        dsEnabled = false;
+        $('ds-options').style.display = 'none';
+      }
+      calculate();
+    });
 
     $('iphone-add-btn').addEventListener('click', () => {
       const model = $('iphone-model').value;
@@ -743,6 +892,24 @@
       $('iphone-add-repair').value = '';
       renderIphoneRepairs();
       calculate();
+    });
+
+    // DisplayShield toggle
+    $('ds-toggle').addEventListener('change', (e) => {
+      dsEnabled = e.target.checked;
+      $('ds-options').style.display = dsEnabled ? '' : 'none';
+      calculate();
+    });
+
+    // Deductible tiles
+    document.querySelectorAll('.deductible-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        document.querySelectorAll('.deductible-tile').forEach(t => t.classList.remove('selected'));
+        tile.classList.add('selected');
+        tile.querySelector('input').checked = true;
+        dsDeductible = parseInt(tile.querySelector('input').value);
+        calculate();
+      });
     });
 
     // Manual mode
@@ -810,6 +977,10 @@
         iphoneRepairs = [];
         populateRepairOptions();
         renderIphoneRepairs();
+        $('ds-card').style.display = 'none';
+        $('ds-toggle').checked = false;
+        $('ds-options').style.display = 'none';
+        dsEnabled = false;
       } else {
         $('manual-device').value = '';
         manualParts = [];
@@ -942,7 +1113,12 @@
       total += discounted;
     });
 
-    const finalTotal = Math.ceil(total);
+    // DisplayShield charge (rounded up to nearest $10)
+    const dsAdd = (dsEnabled && isScreenRepair(repair))
+      ? getDSCharge(primaryPrice, dsDeductible)
+      : 0;
+
+    const finalTotal = Math.ceil(total) + dsAdd;
 
     // Update total display
     $('total-display').textContent = '$' + finalTotal;
@@ -952,7 +1128,8 @@
       ? repairList[0]
       : repairList.slice(0, -1).join(', ') + ' & ' + repairList[repairList.length - 1];
 
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairText}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
+    const repairLabel = (dsAdd > 0) ? `${repairText} + DisplayShield` : repairText;
+    const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairLabel}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
     $('sms-out').value = sms;
 
     // Build detailed breakdown
@@ -967,6 +1144,10 @@
                    r.repair.includes('Back Glass') ? '' : '(40% off)';
       lines.push(`${r.repair.padEnd(25)} $${discounted.toFixed(2)}  ${note}`);
     });
+
+    if (dsAdd > 0) {
+      lines.push(`${'DisplayShield:'.padEnd(25)} +$${dsAdd}  ($${dsDeductible} deductible)`);
+    }
 
     lines.push('─'.repeat(30));
     lines.push(`${'TOTAL:'.padEnd(25)} $${finalTotal}`);
