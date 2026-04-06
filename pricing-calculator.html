@@ -523,6 +523,38 @@
       border-radius: 4px;
       letter-spacing: 0.05em;
     }
+
+    /* POS SKU section */
+    .sku-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      gap: 10px;
+    }
+    .sku-row:last-child { border-bottom: none; }
+    .sku-repair { flex: 1; color: var(--text); }
+    .sku-code {
+      font-family: monospace;
+      font-size: 12px;
+      background: #111;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .sku-attach-note {
+      margin-top: 10px;
+      padding: 7px 10px;
+      background: #fff8e1;
+      border-left: 3px solid #F59E0B;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #92400e;
+    }
   </style>
 </head>
 <body>
@@ -797,6 +829,13 @@
         <div class="section-title">Total</div>
         <div id="total-display" class="total-display">$0</div>
 
+        <div id="sku-section" style="display:none;">
+          <hr>
+          <div class="section-title">POS Labor SKUs</div>
+          <div id="sku-list"></div>
+          <div class="sku-attach-note">Attach part SKU to each repair line in POS</div>
+        </div>
+
         <hr>
 
         <div class="section-title">SMS Quote Message</div>
@@ -964,6 +1003,21 @@
     }}
   };
 
+  // iPhone labor SKUs (one per repair type — attach part SKU separately in POS)
+  const IPHONE_LABOR_SKUS = {
+    "Screen (Soft OLED AM)":      "IPSCRNREP",
+    "Battery (Aftermarket)":      "IPBATTREP",
+    "Battery (Genuine OEM)":      "IPBATTREP",
+    "Charging Port":              "IPCHGREP",
+    "Prox Sensor":                "IPPROXREP",
+    "Front Camera (Aftermarket)": "IPFRCMREP",
+    "Front Camera (Genuine OEM)": "IPFRCMREP",
+    "Rear Camera (Aftermarket)":  "IPRECMREP",
+    "Rear Camera (Genuine OEM)":  "IPRECMREP",
+    "Back Glass (Removable)":     "IPBGREP",
+    "Back Glass (Adhered)":       "IPBGREP"
+  };
+
   const CONSOLE_GROUPS = [
     { label: "Current Gen — $175 flat rate", devices: ["PlayStation 5 (all models)", "Xbox Series X / Series S"] },
     { label: "Last Gen — $150 flat rate",    devices: ["PlayStation 4 Pro", "PlayStation 4 / PS4 Slim", "Xbox One S / One X", "Xbox One"] },
@@ -1008,6 +1062,15 @@
 
   function isScreenRepair(repairName) {
     return repairName.includes('Screen');
+  }
+
+  function renderSkuSection(entries) {
+    const section = $('sku-section');
+    if (!entries.length) { section.style.display = 'none'; return; }
+    section.style.display = '';
+    $('sku-list').innerHTML = entries.map(({ repair, sku }) =>
+      `<div class="sku-row"><span class="sku-repair">${repair}</span><span class="sku-code">${sku}</span></div>`
+    ).join('');
   }
 
   function updateDeductibleTiles(deductible) {
@@ -1107,6 +1170,7 @@
         currentMode = tab.dataset.mode;
         document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
         $(`${currentMode}-mode`).classList.add('active');
+        if (currentMode !== 'iphone') renderSkuSection([]);
         calculate();
       });
     });
@@ -1413,6 +1477,7 @@
       $('total-display').textContent = '$0';
       $('sms-out').value = '';
       $('out').value = '';
+      renderSkuSection([]);
       return;
     }
 
@@ -1436,10 +1501,8 @@
       total += discounted;
     });
 
-    // DisplayShield charge — always included for screen repairs
-    const dsAdd = isScreenRepair(repair) ? getDSCharge(primaryPrice, dsDeductible) : 0;
-
-    const finalTotal = Math.ceil(total) + dsAdd;
+    const finalTotal = Math.ceil(total);
+    const screenRepair = isScreenRepair(repair);
 
     // Update total display
     $('total-display').textContent = '$' + finalTotal;
@@ -1449,7 +1512,7 @@
       ? repairList[0]
       : repairList.slice(0, -1).join(', ') + ' & ' + repairList[repairList.length - 1];
 
-    const repairLabel = (dsAdd > 0) ? `${repairText} + DisplayShield` : repairText;
+    const repairLabel = screenRepair ? `${repairText} + DisplayShield` : repairText;
     const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairLabel}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
     $('sms-out').value = sms;
 
@@ -1466,14 +1529,19 @@
       lines.push(`${r.repair.padEnd(25)} $${discounted.toFixed(2)}  ${note}`);
     });
 
-    if (dsAdd > 0) {
-      lines.push(`${'DisplayShield:'.padEnd(25)} +$${dsAdd}  ($${dsDeductible} deductible)`);
+    if (screenRepair) {
+      lines.push(`${'DisplayShield:'.padEnd(25)} Included  ($${dsDeductible} ded.)`);
     }
 
     lines.push('─'.repeat(30));
     lines.push(`${'TOTAL:'.padEnd(25)} $${finalTotal}`);
 
     $('out').value = lines.join('\n');
+
+    // POS SKU section
+    const skuEntries = [{ repair, sku: IPHONE_LABOR_SKUS[repair] || '—' }];
+    iphoneRepairs.forEach(r => skuEntries.push({ repair: r.repair, sku: IPHONE_LABOR_SKUS[r.repair] || '—' }));
+    renderSkuSection(skuEntries);
   }
 
   function getShipping() {
