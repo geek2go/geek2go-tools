@@ -740,6 +740,34 @@
           </div>
         </div>
 
+        <!-- POS SKU Reference Card -->
+        <div class="card">
+          <div class="section-title" style="margin-bottom:10px;">POS SKU Reference</div>
+          <div class="note-item note-info">
+            <strong>Always link the correct part item</strong> to each repair SKU in the ticket.
+          </div>
+          <div class="note-item note-warning">
+            <strong>Secondary repairs</strong> on the same device are discounted 40%.
+          </div>
+          <div class="note-item note-warning">
+            <strong>Missing part SKU?</strong> It must be added to the system first, then linked to the repair SKU.
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:12px;">
+            <select id="sku-brand" style="flex:1.2;">
+              <option value="">-- Brand --</option>
+            </select>
+            <select id="sku-repair-type" style="flex:1.2;">
+              <option value="">-- Repair --</option>
+            </select>
+            <button id="sku-add-btn">Add</button>
+          </div>
+
+          <div id="manual-sku-list" style="margin-top:10px;">
+            <div class="empty-state">No SKUs added</div>
+          </div>
+        </div>
+
         <!-- DisplayShield Card for Manual Mode -->
         <div id="ds-manual-card" class="card ds-card">
           <div class="ds-header">
@@ -1019,6 +1047,55 @@
     "Back Glass (Adhered)":       "IPBGREP"
   };
 
+  // Manual calculator — Samsung/Android SKU reference
+  const MANUAL_SKUS = {
+    "Samsung Galaxy S": {
+      "Screen Repair":        { sku: "SMSCREENREP", note: "Link screen part item" },
+      "Battery Repair":       { sku: "SMBATTREP",   note: "Link battery part item" },
+      "Back Glass Repair":    { sku: "SMBGREP",     note: "Link back glass part item" },
+      "Charging Port Repair": { sku: "SMCHRGREP",   note: "Link charge port part item" },
+      "Rear Camera Repair":   { sku: "SMRECMREP",   note: "Link camera part item" },
+      "Front Camera Repair":  { sku: "SMFRCMREP",   note: "Link camera part item" },
+      "Speaker Repair":       { sku: "SMSPKRREP",   note: "Link speaker part item" }
+    },
+    "Samsung Galaxy A": {
+      "Screen Repair":        { sku: "ASERIES-SCREEN", note: "Link screen part item" },
+      "Battery Repair":       { sku: "ASERIES-BATT",   note: "Link battery part item" },
+      "Back Glass Repair":    { sku: "ASERIES-BG",     note: "Link back glass part item" },
+      "Charging Port Repair": { sku: "ASERIES-CHRG",   note: "Link charge port part item" },
+      "Rear Camera Repair":   { sku: "ASERIES-RECAM",  note: "Link camera part item" },
+      "Front Camera Repair":  { sku: "ASERIES-FRCAM",  note: "Link camera part item" },
+      "Speaker Repair":       { sku: "ASERIES-SPKR",   note: "Link speaker part item" }
+    },
+    "Motorola": {
+      "Screen Repair":        { sku: "MOT-SCREEN", note: "Link screen part item" },
+      "Battery Repair":       { sku: "MOT-BATT",   note: "Link battery part item" },
+      "Back Glass Repair":    { sku: "MOT-BG",     note: "Link back glass part item" },
+      "Charging Port Repair": { sku: "MOT-CHRG",   note: "Link charge port part item" },
+      "Rear Camera Repair":   { sku: "MOT-RECAM",  note: "Link camera part item" },
+      "Front Camera Repair":  { sku: "MOT-FRCAM",  note: "Link camera part item" },
+      "Speaker Repair":       { sku: "MOT-SPKR",   note: "Link speaker part item" }
+    },
+    "Google Pixel": {
+      "Screen Repair":        { sku: "PIX-SCREEN", note: "Link screen part item" },
+      "Battery Repair":       { sku: "PIX-BATT",   note: "Link battery part item" },
+      "Back Glass Repair":    { sku: "PIX-BG",     note: "Link back glass part item" },
+      "Charging Port Repair": { sku: "PIX-CHRG",   note: "Link charge port part item" },
+      "Rear Camera Repair":   { sku: "PIX-RECAM",  note: "Link camera part item" },
+      "Front Camera Repair":  { sku: "PIX-FRCAM",  note: "Link camera part item" },
+      "Speaker Repair":       { sku: "PIX-SPKR",   note: "Link speaker part item" }
+    },
+    "Android (Other)": {
+      "Screen Repair":        { sku: "ANDR-SCREEN", note: "Link screen part item" },
+      "Battery Repair":       { sku: "ANDR-BATT",   note: "Link battery part item" },
+      "Back Glass Repair":    { sku: "ANDR-BG",     note: "Link back glass part item" },
+      "Charging Port Repair": { sku: "ANDR-CHRG",   note: "Link charge port part item" },
+      "Rear Camera Repair":   { sku: "ANDR-RECAM",  note: "Link camera part item" },
+      "Front Camera Repair":  { sku: "ANDR-FRCAM",  note: "Link camera part item" },
+      "Speaker Repair":       { sku: "ANDR-SPKR",   note: "Link speaker part item" }
+    }
+  };
+
   const CONSOLE_GROUPS = [
     { label: "Current Gen — $175 flat rate", devices: ["PlayStation 5 (all models)", "Xbox Series X / Series S"] },
     { label: "Last Gen — $150 flat rate",    devices: ["PlayStation 4 Pro", "PlayStation 4 / PS4 Slim", "Xbox One S / One X", "Xbox One"] },
@@ -1090,6 +1167,7 @@
   let currentMode = 'iphone';
   let iphoneRepairs = []; // {repair, price, isSecondary}
   let manualParts = []; // {name, cost}
+  let manualSkus = []; // {brand, repair, sku, note}
   let dsManualEnabled = false;
   let dsDeductible = 29;
 
@@ -1097,6 +1175,7 @@
   function init() {
     populateIphoneModels();
     populateRepairOptions();
+    populateSkuBrands();
     populateConsoleDevices();
     bindEvents();
     loadDefaults();
@@ -1135,6 +1214,56 @@
         opt2.textContent = repair;
         addSelect.appendChild(opt2);
       }
+    });
+  }
+
+  function populateSkuBrands() {
+    const sel = $('sku-brand');
+    sel.innerHTML = '<option value="">-- Brand --</option>';
+    Object.keys(MANUAL_SKUS).forEach(brand => {
+      const opt = document.createElement('option');
+      opt.value = brand;
+      opt.textContent = brand;
+      sel.appendChild(opt);
+    });
+  }
+
+  function populateSkuRepairTypes(brand) {
+    const sel = $('sku-repair-type');
+    sel.innerHTML = '<option value="">-- Repair --</option>';
+    if (!brand || !MANUAL_SKUS[brand]) return;
+    Object.keys(MANUAL_SKUS[brand]).forEach(repair => {
+      const opt = document.createElement('option');
+      opt.value = repair;
+      opt.textContent = repair;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderManualSkuList() {
+    const container = $('manual-sku-list');
+    if (manualSkus.length === 0) {
+      container.innerHTML = '<div class="empty-state">No SKUs added</div>';
+      return;
+    }
+    container.innerHTML = manualSkus.map((s, i) => `
+      <div class="sku-row" style="align-items:flex-start; padding:8px 0;">
+        <div style="flex:1;">
+          <div style="font-size:13px; color:var(--muted);">${s.brand}</div>
+          <div style="font-size:13px;">${s.repair}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${s.note}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="sku-code">${s.sku}</span>
+          <button class="remove-btn" data-index="${i}">&times;</button>
+        </div>
+      </div>
+    `).join('');
+    container.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        manualSkus.splice(parseInt(btn.dataset.index), 1);
+        renderManualSkuList();
+      });
     });
   }
 
@@ -1214,6 +1343,23 @@
       $('iphone-add-repair').value = '';
       renderIphoneRepairs();
       calculate();
+    });
+
+    // Manual SKU reference
+    $('sku-brand').addEventListener('change', (e) => {
+      populateSkuRepairTypes(e.target.value);
+    });
+
+    $('sku-add-btn').addEventListener('click', () => {
+      const brand = $('sku-brand').value;
+      const repair = $('sku-repair-type').value;
+      if (!brand || !repair) return;
+      const data = MANUAL_SKUS[brand]?.[repair];
+      if (!data) return;
+      if (manualSkus.some(s => s.brand === brand && s.repair === repair)) return;
+      manualSkus.push({ brand, repair, sku: data.sku, note: data.note });
+      $('sku-repair-type').value = '';
+      renderManualSkuList();
     });
 
     // Console mode
@@ -1332,6 +1478,10 @@
         $('manual-device').value = '';
         manualParts = [];
         renderParts();
+        manualSkus = [];
+        renderManualSkuList();
+        $('sku-brand').value = '';
+        populateSkuRepairTypes('');
         $('ds-manual-toggle').checked = false;
         $('ds-manual-options').style.display = 'none';
         dsManualEnabled = false;
