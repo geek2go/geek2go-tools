@@ -546,15 +546,11 @@
         <div id="ds-card" class="card ds-card" style="display:none;">
           <div class="ds-header">
             <div>
-              <div class="section-title" style="margin:0;">DisplayShield</div>
-              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Screen protection & warranty</div>
+              <div class="section-title" style="margin:0;">DisplayShield Included</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Screen protection & warranty — included with every screen repair</div>
             </div>
-            <label class="ds-toggle-label">
-              <input type="checkbox" id="ds-toggle">
-              <span>Add</span>
-            </label>
           </div>
-          <div id="ds-options" style="display:none; margin-top:12px;">
+          <div style="margin-top:12px;">
             <div style="font-size:13px; color:var(--muted); font-weight:500;">Customer deductible at time of claim:</div>
             <div class="deductible-tiles">
               <label class="deductible-tile">
@@ -742,51 +738,73 @@
 (function(){
   const $ = id => document.getElementById(id);
 
-  // iPhone Pricing Data (from CSV)
+  // iPhone Pricing Data (screen prices from POS Price Reference, April 2026)
   const IPHONE_PRICING = {
-    "iPhone 6": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":100,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":80,"Rear Camera (Aftermarket)":75},
-    "iPhone 6 Plus": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":100,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":75},
-    "iPhone 6s": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":100,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":80,"Rear Camera (Aftermarket)":75},
-    "iPhone 6s Plus": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":100,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":75},
-    "iPhone 7": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":110,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":90},
-    "iPhone 7 Plus": {"Screen (Soft OLED AM)":79.99,"Screen (Genuine OEM)":120,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":100},
-    "iPhone 8": {"Screen (Soft OLED AM)":89.99,"Screen (Genuine OEM)":120,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":90,"Rear Camera (Aftermarket)":95},
-    "iPhone 8 Plus": {"Screen (Soft OLED AM)":89.99,"Screen (Genuine OEM)":130,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":95,"Rear Camera (Aftermarket)":115},
-    "iPhone SE 2": {"Screen (Soft OLED AM)":94.99,"Screen (Genuine OEM)":120,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":90,"Rear Camera (Aftermarket)":110},
-    "iPhone SE 3": {"Screen (Soft OLED AM)":94.99,"Screen (Genuine OEM)":120,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":90,"Rear Camera (Aftermarket)":110},
-    "iPhone X": {"Screen (Soft OLED AM)":139.99,"Screen (Genuine OEM)":170,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":90,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":120},
-    "iPhone XS": {"Screen (Soft OLED AM)":139.99,"Screen (Genuine OEM)":175,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":90,"Front Camera (Aftermarket)":110,"Rear Camera (Aftermarket)":135},
-    "iPhone XS Max": {"Screen (Soft OLED AM)":149.99,"Screen (Genuine OEM)":190,"Battery (Aftermarket)":79,"Charging Port":100,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Rear Camera (Aftermarket)":135},
-    "iPhone XR": {"Screen (Soft OLED AM)":109.99,"Screen (Genuine OEM)":140,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":95,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":120},
-    "iPhone 11": {"Screen (Soft OLED AM)":149.99,"Screen (Genuine OEM)":150,"Battery (Aftermarket)":89.99,"Charging Port":95,"Prox Sensor":95,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":125},
-    "iPhone 11 Pro": {"Screen (Soft OLED AM)":159.99,"Screen (Genuine OEM)":185,"Battery (Aftermarket)":89.99,"Charging Port":120,"Prox Sensor":100,"Front Camera (Aftermarket)":115,"Rear Camera (Aftermarket)":145},
-    "iPhone 11 Pro Max": {"Screen (Soft OLED AM)":159.99,"Screen (Genuine OEM)":200,"Battery (Aftermarket)":89.99,"Charging Port":130,"Prox Sensor":105,"Front Camera (Aftermarket)":120,"Rear Camera (Aftermarket)":145},
-    "iPhone 12 Mini": {"Screen (Soft OLED AM)":189.99,"Screen (Genuine OEM)":250,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":125,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":125,"Rear Camera (Genuine OEM)":225},
-    "iPhone 12": {"Screen (Soft OLED AM)":169.99,"Screen (Genuine OEM)":205,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":125,"Rear Camera (Genuine OEM)":225},
-    "iPhone 12 Pro": {"Screen (Soft OLED AM)":169.99,"Screen (Genuine OEM)":205,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":165,"Rear Camera (Genuine OEM)":260},
-    "iPhone 12 Pro Max": {"Screen (Soft OLED AM)":179.99,"Screen (Genuine OEM)":280,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":105,"Front Camera (Aftermarket)":120,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":160,"Rear Camera (Genuine OEM)":270},
-    "iPhone 13 Mini": {"Screen (Soft OLED AM)":179.99,"Screen (Genuine OEM)":225,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":125,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":300,"Rear Camera (Aftermarket)":120,"Rear Camera (Genuine OEM)":240},
-    "iPhone 13": {"Screen (Soft OLED AM)":179.99,"Screen (Genuine OEM)":225,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":135,"Charging Port":120,"Prox Sensor":135,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":120,"Rear Camera (Genuine OEM)":250},
-    "iPhone 13 Pro": {"Screen (Soft OLED AM)":189.99,"Screen (Genuine OEM)":285,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":145,"Front Camera (Aftermarket)":120,"Front Camera (Genuine OEM)":315,"Rear Camera (Aftermarket)":175,"Rear Camera (Genuine OEM)":275},
-    "iPhone 13 Pro Max": {"Screen (Soft OLED AM)":189.99,"Screen (Genuine OEM)":325,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":150,"Charging Port":140,"Prox Sensor":155,"Front Camera (Aftermarket)":140,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":175,"Rear Camera (Genuine OEM)":285},
-    "iPhone 14": {"Screen (Soft OLED AM)":175.99,"Screen (Genuine OEM)":250,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":140,"Charging Port":120,"Prox Sensor":140,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":140,"Rear Camera (Genuine OEM)":245,"Back Glass (Removable)":149},
-    "iPhone 14 Plus": {"Screen (Soft OLED AM)":185.99,"Screen (Genuine OEM)":290,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":140,"Front Camera (Aftermarket)":150,"Front Camera (Genuine OEM)":315,"Rear Camera (Aftermarket)":150,"Rear Camera (Genuine OEM)":255,"Back Glass (Removable)":155},
-    "iPhone 14 Pro": {"Screen (Soft OLED AM)":229.99,"Screen (Genuine OEM)":360,"Battery (Aftermarket)":115,"Battery (Genuine OEM)":150,"Charging Port":130,"Prox Sensor":145,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":170,"Rear Camera (Genuine OEM)":285},
-    "iPhone 14 Pro Max": {"Screen (Soft OLED AM)":229.99,"Screen (Genuine OEM)":395,"Battery (Aftermarket)":119,"Battery (Genuine OEM)":155,"Charging Port":140,"Prox Sensor":155,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":180,"Rear Camera (Genuine OEM)":295},
-    "iPhone 15": {"Screen (Soft OLED AM)":199.99,"Screen (Genuine OEM)":320,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":145,"Charging Port":150,"Prox Sensor":140,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":300,"Rear Camera (Aftermarket)":155,"Rear Camera (Genuine OEM)":250,"Back Glass (Removable)":149},
-    "iPhone 15 Plus": {"Screen (Soft OLED AM)":239.99,"Screen (Genuine OEM)":350,"Battery (Aftermarket)":115,"Battery (Genuine OEM)":150,"Charging Port":160,"Prox Sensor":150,"Front Camera (Aftermarket)":150,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":165,"Rear Camera (Genuine OEM)":260,"Back Glass (Removable)":155},
-    "iPhone 15 Pro": {"Screen (Soft OLED AM)":249.99,"Screen (Genuine OEM)":380,"Battery (Aftermarket)":119,"Battery (Genuine OEM)":155,"Charging Port":175,"Prox Sensor":160,"Front Camera (Aftermarket)":165,"Front Camera (Genuine OEM)":325,"Rear Camera (Aftermarket)":185,"Rear Camera (Genuine OEM)":295,"Back Glass (Removable)":175},
-    "iPhone 15 Pro Max": {"Screen (Soft OLED AM)":279.99,"Screen (Genuine OEM)":449.99,"Battery (Aftermarket)":125,"Battery (Genuine OEM)":160,"Charging Port":185,"Prox Sensor":170,"Front Camera (Aftermarket)":175,"Front Camera (Genuine OEM)":335,"Rear Camera (Aftermarket)":195,"Rear Camera (Genuine OEM)":315,"Back Glass (Removable)":195},
-    "iPhone 16e": {"Screen (Soft OLED AM)":184.99,"Screen (Genuine OEM)":249.99,"Battery (Aftermarket)":129.99,"Battery (Genuine OEM)":160,"Charging Port":200,"Prox Sensor":175,"Front Camera (Genuine OEM)":275,"Rear Camera (Genuine OEM)":310,"Back Glass (Removable)":175},
-    "iPhone 16": {"Screen (Soft OLED AM)":249.99,"Screen (Genuine OEM)":350,"Battery (Aftermarket)":129.99,"Battery (Genuine OEM)":155,"Charging Port":155,"Prox Sensor":150,"Front Camera (Aftermarket)":190,"Front Camera (Genuine OEM)":310,"Rear Camera (Genuine OEM)":255,"Back Glass (Removable)":175},
-    "iPhone 16 Plus": {"Screen (Soft OLED AM)":279.99,"Screen (Genuine OEM)":410,"Battery (Aftermarket)":159.99,"Battery (Genuine OEM)":160,"Charging Port":165,"Prox Sensor":160,"Front Camera (Aftermarket)":200,"Front Camera (Genuine OEM)":320,"Rear Camera (Genuine OEM)":265,"Back Glass (Removable)":185},
-    "iPhone 16 Pro": {"Screen (Soft OLED AM)":349.99,"Screen (Genuine OEM)":429.99,"Battery (Aftermarket)":169.99,"Battery (Genuine OEM)":165,"Charging Port":180,"Prox Sensor":170,"Front Camera (Aftermarket)":220,"Front Camera (Genuine OEM)":335,"Rear Camera (Genuine OEM)":325,"Back Glass (Removable)":215},
-    "iPhone 16 Pro Max": {"Screen (Soft OLED AM)":449.99,"Screen (Genuine OEM)":499.99,"Battery (Aftermarket)":169.99,"Battery (Genuine OEM)":199.99,"Charging Port":190,"Prox Sensor":180,"Front Camera (Aftermarket)":230,"Front Camera (Genuine OEM)":345,"Rear Camera (Genuine OEM)":335,"Back Glass (Removable)":235}
+    "iPhone 17 Pro Max": {"Screen (Soft OLED AM)":349.99},
+    "iPhone 17 Pro":     {"Screen (Soft OLED AM)":299.99},
+    "iPhone 17 Air":     {"Screen (Soft OLED AM)":409.99},
+    "iPhone 17":         {"Screen (Soft OLED AM)":289.99},
+    "iPhone 16 Pro Max": {"Screen (Soft OLED AM)":319.99,"Battery (Aftermarket)":169.99,"Battery (Genuine OEM)":199.99,"Charging Port":190,"Prox Sensor":180,"Front Camera (Aftermarket)":230,"Front Camera (Genuine OEM)":345,"Rear Camera (Genuine OEM)":335,"Back Glass (Removable)":235},
+    "iPhone 16 Pro":     {"Screen (Soft OLED AM)":289.99,"Battery (Aftermarket)":169.99,"Battery (Genuine OEM)":165,"Charging Port":180,"Prox Sensor":170,"Front Camera (Aftermarket)":220,"Front Camera (Genuine OEM)":335,"Rear Camera (Genuine OEM)":325,"Back Glass (Removable)":215},
+    "iPhone 16 Plus":    {"Screen (Soft OLED AM)":249.99,"Battery (Aftermarket)":159.99,"Battery (Genuine OEM)":160,"Charging Port":165,"Prox Sensor":160,"Front Camera (Aftermarket)":200,"Front Camera (Genuine OEM)":320,"Rear Camera (Genuine OEM)":265,"Back Glass (Removable)":185},
+    "iPhone 16":         {"Screen (Soft OLED AM)":239.99,"Battery (Aftermarket)":129.99,"Battery (Genuine OEM)":155,"Charging Port":155,"Prox Sensor":150,"Front Camera (Aftermarket)":190,"Front Camera (Genuine OEM)":310,"Rear Camera (Genuine OEM)":255,"Back Glass (Removable)":175},
+    "iPhone 16e":        {"Screen (Soft OLED AM)":209.99,"Battery (Aftermarket)":129.99,"Battery (Genuine OEM)":160,"Charging Port":200,"Prox Sensor":175,"Front Camera (Genuine OEM)":275,"Rear Camera (Genuine OEM)":310,"Back Glass (Removable)":175},
+    "iPhone 15 Pro Max": {"Screen (Soft OLED AM)":239.99,"Battery (Aftermarket)":125,"Battery (Genuine OEM)":160,"Charging Port":185,"Prox Sensor":170,"Front Camera (Aftermarket)":175,"Front Camera (Genuine OEM)":335,"Rear Camera (Aftermarket)":195,"Rear Camera (Genuine OEM)":315,"Back Glass (Removable)":195},
+    "iPhone 15 Pro":     {"Screen (Soft OLED AM)":239.99,"Battery (Aftermarket)":119,"Battery (Genuine OEM)":155,"Charging Port":175,"Prox Sensor":160,"Front Camera (Aftermarket)":165,"Front Camera (Genuine OEM)":325,"Rear Camera (Aftermarket)":185,"Rear Camera (Genuine OEM)":295,"Back Glass (Removable)":175},
+    "iPhone 15 Plus":    {"Screen (Soft OLED AM)":209.99,"Battery (Aftermarket)":115,"Battery (Genuine OEM)":150,"Charging Port":160,"Prox Sensor":150,"Front Camera (Aftermarket)":150,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":165,"Rear Camera (Genuine OEM)":260,"Back Glass (Removable)":155},
+    "iPhone 15":         {"Screen (Soft OLED AM)":199.99,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":145,"Charging Port":150,"Prox Sensor":140,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":300,"Rear Camera (Aftermarket)":155,"Rear Camera (Genuine OEM)":250,"Back Glass (Removable)":149},
+    "iPhone 14 Pro Max": {"Screen (Soft OLED AM)":219.99,"Battery (Aftermarket)":119,"Battery (Genuine OEM)":155,"Charging Port":140,"Prox Sensor":155,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":180,"Rear Camera (Genuine OEM)":295},
+    "iPhone 14 Pro":     {"Screen (Soft OLED AM)":209.99,"Battery (Aftermarket)":115,"Battery (Genuine OEM)":150,"Charging Port":130,"Prox Sensor":145,"Front Camera (Aftermarket)":130,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":170,"Rear Camera (Genuine OEM)":285},
+    "iPhone 14 Plus":    {"Screen (Soft OLED AM)":209.99,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":140,"Front Camera (Aftermarket)":150,"Front Camera (Genuine OEM)":315,"Rear Camera (Aftermarket)":150,"Rear Camera (Genuine OEM)":255,"Back Glass (Removable)":155},
+    "iPhone 14":         {"Screen (Soft OLED AM)":199.99,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":140,"Charging Port":120,"Prox Sensor":140,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":140,"Rear Camera (Genuine OEM)":245,"Back Glass (Removable)":149},
+    "iPhone 13 Pro Max": {"Screen (Soft OLED AM)":209.99,"Battery (Aftermarket)":109,"Battery (Genuine OEM)":150,"Charging Port":140,"Prox Sensor":155,"Front Camera (Aftermarket)":140,"Front Camera (Genuine OEM)":320,"Rear Camera (Aftermarket)":175,"Rear Camera (Genuine OEM)":285},
+    "iPhone 13 Pro":     {"Screen (Soft OLED AM)":219.99,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":145,"Front Camera (Aftermarket)":120,"Front Camera (Genuine OEM)":315,"Rear Camera (Aftermarket)":175,"Rear Camera (Genuine OEM)":275},
+    "iPhone 13":         {"Screen (Soft OLED AM)":199.99,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":135,"Charging Port":120,"Prox Sensor":135,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":310,"Rear Camera (Aftermarket)":120,"Rear Camera (Genuine OEM)":250},
+    "iPhone 13 mini":    {"Screen (Soft OLED AM)":199.99,"Battery (Aftermarket)":105,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":125,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":300,"Rear Camera (Aftermarket)":120,"Rear Camera (Genuine OEM)":240},
+    "iPhone 12 Pro Max": {"Screen (Soft OLED AM)":189.99,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":145,"Charging Port":130,"Prox Sensor":105,"Front Camera (Aftermarket)":120,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":160,"Rear Camera (Genuine OEM)":270},
+    "iPhone 12 Pro":     {"Screen (Soft OLED AM)":179.99,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":165,"Rear Camera (Genuine OEM)":260},
+    "iPhone 12":         {"Screen (Soft OLED AM)":179.99,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":125,"Rear Camera (Genuine OEM)":225},
+    "iPhone 12 mini":    {"Screen (Soft OLED AM)":199.99,"Battery (Aftermarket)":89.99,"Battery (Genuine OEM)":135,"Charging Port":110,"Prox Sensor":95,"Front Camera (Aftermarket)":125,"Front Camera (Genuine OEM)":250,"Rear Camera (Aftermarket)":125,"Rear Camera (Genuine OEM)":225},
+    "iPhone 11 Pro Max": {"Screen (Soft OLED AM)":189.99,"Battery (Aftermarket)":89.99,"Charging Port":130,"Prox Sensor":105,"Front Camera (Aftermarket)":120,"Rear Camera (Aftermarket)":145},
+    "iPhone 11 Pro":     {"Screen (Soft OLED AM)":179.99,"Battery (Aftermarket)":89.99,"Charging Port":120,"Prox Sensor":100,"Front Camera (Aftermarket)":115,"Rear Camera (Aftermarket)":145},
+    "iPhone 11":         {"Screen (Soft OLED AM)":129.99,"Battery (Aftermarket)":89.99,"Charging Port":95,"Prox Sensor":95,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":125},
+    "iPhone XS Max":     {"Screen (Soft OLED AM)":149.99,"Battery (Aftermarket)":79,"Charging Port":100,"Prox Sensor":95,"Front Camera (Aftermarket)":110,"Rear Camera (Aftermarket)":135},
+    "iPhone XS":         {"Screen (Soft OLED AM)":139.99,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":90,"Front Camera (Aftermarket)":110,"Rear Camera (Aftermarket)":135},
+    "iPhone XR":         {"Screen (Soft OLED AM)":129.99,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":95,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":120},
+    "iPhone X":          {"Screen (Soft OLED AM)":149.99,"Battery (Aftermarket)":79,"Charging Port":95,"Prox Sensor":90,"Front Camera (Aftermarket)":105,"Rear Camera (Aftermarket)":120},
+    "iPhone 8 Plus":     {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":95,"Rear Camera (Aftermarket)":115},
+    "iPhone 8 / SE (2020 & 2022)": {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":79,"Charging Port":85,"Prox Sensor":90,"Rear Camera (Aftermarket)":95},
+    "iPhone 7 Plus":     {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":100},
+    "iPhone 7":          {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":90},
+    "iPhone 6s Plus":    {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":75},
+    "iPhone 6s":         {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":80,"Rear Camera (Aftermarket)":75},
+    "iPhone 6 Plus":     {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":85,"Rear Camera (Aftermarket)":75},
+    "iPhone 6":          {"Screen (Soft OLED AM)":99.99,"Battery (Aftermarket)":69,"Charging Port":75,"Prox Sensor":80,"Rear Camera (Aftermarket)":75},
+    "iPhone 5s / SE (1st Gen)": {"Screen (Soft OLED AM)":99.99},
+    "iPhone 5":          {"Screen (Soft OLED AM)":99.99},
+    "iPhone 4 / 4s":     {"Screen (Soft OLED AM)":99.99}
+  };
+
+  // Per-model DisplayShield deductible (from POS Price Reference)
+  const IPHONE_DS_DEDUCTIBLE = {
+    "iPhone 17 Pro Max":99, "iPhone 17 Pro":99, "iPhone 17 Air":99, "iPhone 17":99,
+    "iPhone 16 Pro Max":99,
+    "iPhone 16 Pro":99, "iPhone 16 Plus":99, "iPhone 16":49, "iPhone 16e":49,
+    "iPhone 15 Pro Max":49, "iPhone 15 Pro":49, "iPhone 15 Plus":49, "iPhone 15":49,
+    "iPhone 14 Pro Max":49, "iPhone 14 Pro":49, "iPhone 14 Plus":49, "iPhone 14":49,
+    "iPhone 13 Pro Max":49, "iPhone 13 Pro":49, "iPhone 13":49, "iPhone 13 mini":49,
+    "iPhone 12 Pro Max":49, "iPhone 12 Pro":49, "iPhone 12":49, "iPhone 12 mini":49,
+    "iPhone 11 Pro Max":49, "iPhone 11 Pro":49,
+    "iPhone 11":29,
+    "iPhone XS Max":29, "iPhone XS":29, "iPhone XR":29, "iPhone X":29,
+    "iPhone 8 Plus":29, "iPhone 8 / SE (2020 & 2022)":29,
+    "iPhone 7 Plus":29, "iPhone 7":29,
+    "iPhone 6s Plus":29, "iPhone 6s":29, "iPhone 6 Plus":29, "iPhone 6":29,
+    "iPhone 5s / SE (1st Gen)":29, "iPhone 5":29, "iPhone 4 / 4s":29
   };
 
   const REPAIR_TYPES = [
     "Screen (Soft OLED AM)",
-    "Screen (Genuine OEM)",
     "Battery (Aftermarket)",
     "Battery (Genuine OEM)",
     "Charging Port",
@@ -825,11 +843,18 @@
     return repairName.includes('Screen');
   }
 
+  function updateDeductibleTiles(deductible) {
+    document.querySelectorAll('#ds-card .deductible-tile').forEach(tile => {
+      const val = parseInt(tile.querySelector('input').value);
+      tile.classList.toggle('selected', val === deductible);
+      tile.querySelector('input').checked = (val === deductible);
+    });
+  }
+
   // State
   let currentMode = 'iphone';
   let iphoneRepairs = []; // {repair, price, isSecondary}
   let manualParts = []; // {name, cost}
-  let dsEnabled = false;
   let dsManualEnabled = false;
   let dsDeductible = 29;
 
@@ -892,24 +917,20 @@
 
     // iPhone mode
     $('iphone-model').addEventListener('change', (e) => {
-      populateRepairOptions(e.target.value);
+      const model = e.target.value;
+      populateRepairOptions(model);
       iphoneRepairs = [];
       renderIphoneRepairs();
       $('ds-card').style.display = 'none';
-      $('ds-toggle').checked = false;
-      $('ds-options').style.display = 'none';
-      dsEnabled = false;
+      if (model && IPHONE_DS_DEDUCTIBLE[model] !== undefined) {
+        dsDeductible = IPHONE_DS_DEDUCTIBLE[model];
+        updateDeductibleTiles(dsDeductible);
+      }
       calculate();
     });
 
     $('iphone-repair').addEventListener('change', (e) => {
-      const showDS = isScreenRepair(e.target.value);
-      $('ds-card').style.display = showDS ? '' : 'none';
-      if (!showDS) {
-        $('ds-toggle').checked = false;
-        dsEnabled = false;
-        $('ds-options').style.display = 'none';
-      }
+      $('ds-card').style.display = isScreenRepair(e.target.value) ? '' : 'none';
       calculate();
     });
 
@@ -927,13 +948,6 @@
       iphoneRepairs.push({ repair, price, isSecondary: true });
       $('iphone-add-repair').value = '';
       renderIphoneRepairs();
-      calculate();
-    });
-
-    // DisplayShield toggle
-    $('ds-toggle').addEventListener('change', (e) => {
-      dsEnabled = e.target.checked;
-      $('ds-options').style.display = dsEnabled ? '' : 'none';
       calculate();
     });
 
@@ -1032,9 +1046,6 @@
         populateRepairOptions();
         renderIphoneRepairs();
         $('ds-card').style.display = 'none';
-        $('ds-toggle').checked = false;
-        $('ds-options').style.display = 'none';
-        dsEnabled = false;
       } else {
         $('manual-device').value = '';
         manualParts = [];
@@ -1170,10 +1181,8 @@
       total += discounted;
     });
 
-    // DisplayShield charge (rounded up to nearest $10)
-    const dsAdd = (dsEnabled && isScreenRepair(repair))
-      ? getDSCharge(primaryPrice, dsDeductible)
-      : 0;
+    // DisplayShield charge — always included for screen repairs
+    const dsAdd = isScreenRepair(repair) ? getDSCharge(primaryPrice, dsDeductible) : 0;
 
     const finalTotal = Math.ceil(total) + dsAdd;
 
