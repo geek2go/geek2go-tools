@@ -1042,19 +1042,23 @@
   // DisplayShield store costs by deductible tier
   // Each entry: [maxScreenPrice, storeCost]
   // UPDATE THESE WITH ACTUAL COSTS FROM YOUR DISPLAYSHIELD VENDOR
+  // DisplayShield store costs — lower-bound lookup by repair price (labor + parts)
+  // Source: MyRepairApp DisplayShield Pricing, April 2026
   const DS_COSTS = {
-    0:  [[100, 9.41],  [150, 13.26], [200, 19.89], [280, 26.52], [360, 33.15], [Infinity, 39.91]],
-    29: [[100, 6.76],  [150, 9.41],  [200, 16.04], [280, 22.67], [360, 29.30], [Infinity, 35.93]],
-    49: [[100, 5.41],  [150, 7.26],  [200, 13.26], [280, 16.04], [360, 22.67], [Infinity, 29.30]],
-    99: [[100, 3.76],  [150, 5.41],  [200, 9.41],  [280, 13.26], [360, 16.04], [Infinity, 22.67]]
+     0: [[0,13.26],[100,19.89],[150,26.52],[200,33.15],[250,39.78],[300,46.41],[350,53.04],[400,59.67],[450,66.29],[500,72.92],[550,79.55],[600,86.18]],
+    29: [[0,9.41], [100,16.04],[150,22.67],[200,29.30],[250,35.93],[300,42.56],[350,49.19],[400,55.82],[450,62.45],[500,69.08],[550,75.71],[600,82.34]],
+    49: [[0,6.76], [100,13.39],[150,20.02],[200,26.65],[250,33.28],[300,39.91],[350,46.54],[400,53.17],[450,59.80],[500,66.43],[550,73.06],[600,79.69]],
+    99: [[0,6.76], [100,6.76], [150,13.39],[200,20.02],[250,26.65],[300,33.28],[350,39.91],[400,46.54],[450,53.17],[500,59.80],[550,66.43],[600,73.06]]
   };
 
-  function getDSStoreCost(screenPrice, deductible) {
+  function getDSStoreCost(repairPrice, deductible) {
     const tiers = DS_COSTS[deductible] || DS_COSTS[29];
-    for (const [cap, cost] of tiers) {
-      if (screenPrice <= cap) return cost;
+    let cost = tiers[0][1];
+    for (const [minPrice, c] of tiers) {
+      if (repairPrice >= minPrice) cost = c;
+      else break;
     }
-    return tiers[tiers.length - 1][1];
+    return cost;
   }
 
   function getDSCharge(screenPrice, deductible) {
