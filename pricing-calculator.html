@@ -1502,11 +1502,11 @@
       total += discounted;
     });
 
-    const finalTotal = Math.ceil(total);
+    const finalTotal = Math.round(total * 100) / 100;
     const screenRepair = isScreenRepair(repair);
 
     // Update total display
-    $('total-display').textContent = '$' + finalTotal;
+    $('total-display').textContent = '$' + finalTotal.toFixed(2);
 
     // Build SMS message
     const repairText = repairList.length === 1
@@ -1514,7 +1514,7 @@
       : repairList.slice(0, -1).join(', ') + ' & ' + repairList[repairList.length - 1];
 
     const repairLabel = screenRepair ? `${repairText} + DisplayShield` : repairText;
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairLabel}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
+    const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairLabel}: $${finalTotal.toFixed(2)}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
     $('sms-out').value = sms;
 
     // Build detailed breakdown
@@ -1535,7 +1535,7 @@
     }
 
     lines.push('─'.repeat(30));
-    lines.push(`${'TOTAL:'.padEnd(25)} $${finalTotal}`);
+    lines.push(`${'TOTAL:'.padEnd(25)} $${finalTotal.toFixed(2)}`);
 
     $('out').value = lines.join('\n');
 
