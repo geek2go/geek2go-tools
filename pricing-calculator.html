@@ -488,6 +488,41 @@
       color: var(--muted);
       margin-top: 2px;
     }
+
+    /* Console Repair Tab */
+    .note-item {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+      border-left: 3px solid transparent;
+    }
+    .note-item:last-child { margin-bottom: 0; }
+    .note-warning {
+      background: #fff8e1;
+      border-left-color: #F59E0B;
+    }
+    .note-info {
+      background: #f8f9fa;
+      border-left-color: #6b7280;
+    }
+    .note-muted {
+      background: #f8f9fa;
+      border-left-color: #d1d5db;
+      color: var(--muted);
+    }
+    .console-sku-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 12px;
+      background: #111;
+      color: #fff;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
   </style>
 </head>
 <body>
@@ -505,6 +540,7 @@
       <div class="mode-tabs">
         <button class="mode-tab active" data-mode="iphone">iPhone Presets</button>
         <button class="mode-tab" data-mode="manual">Manual Calculator</button>
+        <button class="mode-tab" data-mode="console">Console Repair</button>
       </div>
 
       <!-- iPhone Mode -->
@@ -709,6 +745,52 @@
       </div>
     </div>
 
+      <!-- Console Repair Mode -->
+      <div id="console-mode" class="mode-content">
+
+        <!-- Tech Notes -->
+        <div class="card">
+          <div class="section-title" style="margin-bottom:10px;">Tech Notes</div>
+          <div class="note-item note-info">
+            <strong>Diagnostics Fee:</strong> $75 diagnostic fee applies to all repairs and all models. Fee is credited toward the repair cost if the customer proceeds.
+          </div>
+          <div class="note-item note-warning">
+            <strong>Liquid Damage:</strong> If customer mentions liquid damage, or signs are found during repair, bump to the <strong>ADVREPAIR</strong> SKU. Additional costs may apply — contact customer before proceeding.
+          </div>
+          <div class="note-item note-info">
+            <strong>Advanced Repairs:</strong> Current gen (PS5, Xbox Series) advanced repairs may incur additional part costs. Always contact customer before any price increase.
+          </div>
+          <div class="note-item note-info">
+            <strong>Parts:</strong> All repair prices are labor-inclusive. Replacement parts (fan, PSU, HDD/SSD, disc drive, etc.) are billed separately as needed.
+          </div>
+          <div class="note-item note-muted">
+            <strong>Retro Consoles</strong> (Xbox 360, PS3, Wii U): Taken case-by-case. No official SKUs. $75 diagnostic fee applies.
+          </div>
+        </div>
+
+        <!-- Device & Repair -->
+        <div class="card">
+          <div class="section-title">Select Console & Repair</div>
+
+          <div class="form-row">
+            <label for="console-device">Console</label>
+            <select id="console-device"></select>
+          </div>
+
+          <div class="form-row">
+            <label for="console-repair">Repair Type</label>
+            <select id="console-repair"></select>
+          </div>
+
+          <div class="price-display muted" id="console-price">Select a repair</div>
+          <div id="console-sku-row" style="display:none; margin-top:4px;">
+            <span style="font-size:12px; color:var(--muted);">POS SKU</span><br>
+            <span class="console-sku-badge" id="console-sku"></span>
+          </div>
+        </div>
+
+      </div>
+
     <!-- Right Column - Output -->
     <div class="right-column">
       <div class="card">
@@ -803,6 +885,91 @@
     "iPhone 5s / SE (1st Gen)":29, "iPhone 5":29, "iPhone 4 / 4s":29
   };
 
+  // Game Console Pricing
+  const CONSOLE_PRICING = {
+    "PlayStation 5 (all models)": { repairs: {
+      "HDMI / No Display":           { price: 175, sku: "PS5-HDMI" },
+      "No Power":                    { price: 175, sku: "PS5-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 175, sku: "PS5-STDREPAIR" },
+      "Software Issue":              { price: 175, sku: "PS5-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 175, sku: "PS5-STDREPAIR" }
+    }},
+    "Xbox Series X / Series S": { repairs: {
+      "HDMI / No Display":           { price: 175, sku: "XBSX-HDMI" },
+      "No Power":                    { price: 175, sku: "XBSX-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 175, sku: "XBSX-STDREPAIR" },
+      "Software Issue":              { price: 175, sku: "XBSX-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 175, sku: "XBSX-STDREPAIR" }
+    }},
+    "PlayStation 4 Pro": { repairs: {
+      "HDMI / No Display":           { price: 150, sku: "PS4PRO-HDMI" },
+      "No Power":                    { price: 150, sku: "PS4PRO-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 150, sku: "PS4PRO-STDREPAIR" },
+      "Software Issue":              { price: 150, sku: "PS4PRO-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 150, sku: "PS4PRO-STDREPAIR" }
+    }},
+    "PlayStation 4 / PS4 Slim": { repairs: {
+      "HDMI / No Display":           { price: 150, sku: "PS4-HDMI" },
+      "No Power":                    { price: 150, sku: "PS4-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 150, sku: "PS4-STDREPAIR" },
+      "Software Issue":              { price: 150, sku: "PS4-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 150, sku: "PS4-STDREPAIR" }
+    }},
+    "Xbox One S / One X": { repairs: {
+      "HDMI / No Display":           { price: 150, sku: "XB1S-HDMI" },
+      "No Power":                    { price: 150, sku: "XB1S-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 150, sku: "XB1S-STDREPAIR" },
+      "Software Issue":              { price: 150, sku: "XB1S-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 150, sku: "XB1S-STDREPAIR" }
+    }},
+    "Xbox One": { repairs: {
+      "HDMI / No Display":           { price: 150, sku: "XB1-HDMI" },
+      "No Power":                    { price: 150, sku: "XB1-STDREPAIR" },
+      "Hardware (Fan / Disc Drive)": { price: 150, sku: "XB1-STDREPAIR" },
+      "Software Issue":              { price: 150, sku: "XB1-STDREPAIR" },
+      "Cleaning / Overheating":      { price: 150, sku: "XB1-STDREPAIR" }
+    }},
+    "Nintendo Switch": { repairs: {
+      "Digitizer":       { price: 119.99, sku: "NINSW-LCDDIG" },
+      "LCD":             { price: 144.99, sku: "NINSW-LCDDIG" },
+      "Battery":         { price: 94.99,  sku: "NINSW-STDREPAIR" },
+      "Charge Port":     { price: 124.99, sku: "NINSW-USBC" },
+      "Card Reader":     { price: 114.99, sku: "NINSW-STDREPAIR" },
+      "Software":        { price: 79.99,  sku: "NINSW-STDREPAIR" },
+      "Cleaning":        { price: 79.99,  sku: "NINSW-STDREPAIR" },
+      "Joystick / Rail": { price: 99.99,  sku: "NINSW-STDREPAIR" }
+    }},
+    "Switch Lite": { repairs: {
+      "Digitizer":       { price: 119.99, sku: "NINSW-LCDDIG" },
+      "LCD":             { price: 134.99, sku: "NINSW-LCDDIG" },
+      "Battery":         { price: 94.99,  sku: "NINSW-STDREPAIR" },
+      "Charge Port":     { price: 124.99, sku: "NINSW-USBC" },
+      "Card Reader":     { price: 114.99, sku: "NINSW-STDREPAIR" },
+      "Software":        { price: 79.99,  sku: "NINSW-STDREPAIR" },
+      "Cleaning":        { price: 79.99,  sku: "NINSW-STDREPAIR" },
+      "Joystick / Rail": { price: 99.99,  sku: "NINSW-STDREPAIR" }
+    }},
+    "Switch OLED": { repairs: {
+      "LCD":             { price: 244.99, sku: "NINSW-LCDDIG" },
+      "Battery":         { price: 114.99, sku: "NINSW-STDREPAIR" },
+      "Charge Port":     { price: 144.99, sku: "NINSW-USBC" },
+      "Card Reader":     { price: 144.99, sku: "NINSW-STDREPAIR" },
+      "Software":        { price: 79.99,  sku: "NINSW-STDREPAIR" },
+      "Cleaning":        { price: 89.99,  sku: "NINSW-STDREPAIR" },
+      "Joystick / Rail": { price: 129.99, sku: "NINSW-STDREPAIR" }
+    }},
+    "Nintendo Switch 2": { repairs: {
+      "Battery":     { price: 149.99, sku: "NINSW-STDREPAIR" },
+      "Charge Port": { price: 200.00, sku: "NINSW-USBC" }
+    }}
+  };
+
+  const CONSOLE_GROUPS = [
+    { label: "Current Gen — $175 flat rate", devices: ["PlayStation 5 (all models)", "Xbox Series X / Series S"] },
+    { label: "Last Gen — $150 flat rate",    devices: ["PlayStation 4 Pro", "PlayStation 4 / PS4 Slim", "Xbox One S / One X", "Xbox One"] },
+    { label: "Nintendo Switch",              devices: ["Nintendo Switch", "Switch Lite", "Switch OLED", "Nintendo Switch 2"] }
+  ];
+
   const REPAIR_TYPES = [
     "Screen (Soft OLED AM)",
     "Battery (Aftermarket)",
@@ -862,6 +1029,7 @@
   function init() {
     populateIphoneModels();
     populateRepairOptions();
+    populateConsoleDevices();
     bindEvents();
     loadDefaults();
     calculate();
@@ -899,6 +1067,34 @@
         opt2.textContent = repair;
         addSelect.appendChild(opt2);
       }
+    });
+  }
+
+  function populateConsoleDevices() {
+    const select = $('console-device');
+    select.innerHTML = '<option value="">-- Select Console --</option>';
+    CONSOLE_GROUPS.forEach(group => {
+      const og = document.createElement('optgroup');
+      og.label = group.label;
+      group.devices.forEach(device => {
+        const opt = document.createElement('option');
+        opt.value = device;
+        opt.textContent = device;
+        og.appendChild(opt);
+      });
+      select.appendChild(og);
+    });
+  }
+
+  function populateConsoleRepairs(device) {
+    const select = $('console-repair');
+    select.innerHTML = '<option value="">-- Select Repair --</option>';
+    if (!device || !CONSOLE_PRICING[device]) return;
+    Object.keys(CONSOLE_PRICING[device].repairs).forEach(repair => {
+      const opt = document.createElement('option');
+      opt.value = repair;
+      opt.textContent = repair;
+      select.appendChild(opt);
     });
   }
 
@@ -950,6 +1146,17 @@
       renderIphoneRepairs();
       calculate();
     });
+
+    // Console mode
+    $('console-device').addEventListener('change', (e) => {
+      populateConsoleRepairs(e.target.value);
+      $('console-sku-row').style.display = 'none';
+      $('console-price').textContent = 'Select a repair';
+      $('console-price').classList.add('muted');
+      calculate();
+    });
+
+    $('console-repair').addEventListener('change', () => calculate());
 
     // Deductible tiles (iPhone mode)
     document.querySelectorAll('#ds-card .deductible-tile').forEach(tile => {
@@ -1046,6 +1253,12 @@
         populateRepairOptions();
         renderIphoneRepairs();
         $('ds-card').style.display = 'none';
+      } else if (currentMode === 'console') {
+        $('console-device').value = '';
+        populateConsoleRepairs('');
+        $('console-price').textContent = 'Select a repair';
+        $('console-price').classList.add('muted');
+        $('console-sku-row').style.display = 'none';
       } else {
         $('manual-device').value = '';
         manualParts = [];
@@ -1143,9 +1356,51 @@
   function calculate() {
     if (currentMode === 'iphone') {
       calculateIphone();
+    } else if (currentMode === 'console') {
+      calculateConsole();
     } else {
       calculateManual();
     }
+  }
+
+  function calculateConsole() {
+    const device = $('console-device').value;
+    const repair = $('console-repair').value;
+
+    if (!device || !repair) {
+      $('total-display').textContent = '$0';
+      $('sms-out').value = '';
+      $('out').value = '';
+      return;
+    }
+
+    const repairData = CONSOLE_PRICING[device]?.repairs[repair];
+    if (!repairData) return;
+
+    const { price, sku } = repairData;
+
+    $('console-price').textContent = '$' + price.toFixed(2);
+    $('console-price').classList.remove('muted');
+    $('console-sku-row').style.display = '';
+    $('console-sku').textContent = sku;
+
+    $('total-display').textContent = '$' + price.toFixed(2);
+
+    const sms = `Hi! Here's your quote from Geek2Go:\n\n${device} — ${repair}: $${price.toFixed(2)}\n\nIncludes $75 diagnostic fee (applied toward repair cost). Parts billed separately if needed. Let us know if you'd like to proceed!`;
+    $('sms-out').value = sms;
+
+    const lines = [];
+    lines.push(`${device} Repair Quote`);
+    lines.push('─'.repeat(32));
+    lines.push(`${repair.padEnd(26)} $${price.toFixed(2)}`);
+    lines.push('─'.repeat(32));
+    lines.push(`${'TOTAL:'.padEnd(26)} $${price.toFixed(2)}`);
+    lines.push('');
+    lines.push(`POS SKU: ${sku}`);
+    lines.push('');
+    lines.push('$75 diagnostic fee applied toward repair.');
+    lines.push('Parts billed separately if needed.');
+    $('out').value = lines.join('\n');
   }
 
   function calculateIphone() {
