@@ -800,6 +800,7 @@
                 <div class="tile-amount">$99</div>
               </label>
             </div>
+            <div id="ds-cost-display" style="margin-top:10px; font-size:13px; color:var(--muted);"></div>
           </div>
         </div>
       </div>
@@ -1722,8 +1723,16 @@
     const baseTotal = Math.ceil(total);
 
     // DisplayShield charge (rounded up to nearest $10, based on pre-DS total as screen price)
+    const storeCost = dsManualEnabled ? getDSStoreCost(baseTotal, dsDeductible) : 0;
     const dsAdd = dsManualEnabled ? getDSCharge(baseTotal, dsDeductible) : 0;
     const finalTotal = baseTotal + dsAdd;
+
+    if (dsManualEnabled) {
+      $('ds-cost-display').innerHTML =
+        `Store cost: <strong>$${storeCost.toFixed(2)}</strong> &nbsp;·&nbsp; Charged to customer: <strong>$${dsAdd.toFixed(2)}</strong>`;
+    } else {
+      $('ds-cost-display').textContent = '';
+    }
 
     // Update total display
     $('total-display').textContent = '$' + finalTotal;
