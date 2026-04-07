@@ -4,180 +4,185 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a collection of standalone HTML tools for Geek2Go computer repair technicians. Each tool is a self-contained application that runs entirely in the browser with minimal dependencies.
+A collection of standalone HTML tools for Geek2Go computer repair technicians. Each tool is a self-contained application running entirely in the browser with no build process or external dependencies.
+
+**Live site**: https://geek2go.github.io/geek2go-tools/
 
 ## Architecture
 
-All tools are built using vanilla JavaScript with no frameworks or build processes. The architecture includes:
+All tools use vanilla JavaScript (IIFE scoping), embedded CSS, and zero frameworks.
 
-- **Shared CSS** (`shared.css`): Common styling patterns and reusable components
-- **Tool-specific CSS**: Theme variables and unique styles embedded in each HTML file
-- **Vanilla JavaScript**: Immediately invoked function expressions for scoping
-- **Index page** (`index.html`): Landing page with links to all tools
+- **Shared CSS** (`shared.css`): Common buttons, forms, cards, grid layouts
+- **Tool CSS**: Theme variables and unique styles embedded per file
+- **State**: DOM state + localStorage (no external libraries)
+- **UI Pattern**: Two-column layout — form/inputs left, live output right
+- **Data flow**: User input → JS processing → formatted text for copy/paste into POS (MyRepairApp)
 
-### Design Patterns
-
-**State Management**: Uses DOM state and localStorage for persistence. No external state libraries.
-
-**Parsing Strategy**: Text parsing uses regular expressions and string manipulation to extract structured data from unformatted text (e.g., PC-Doctor reports).
-
-**UI Pattern**: Two-column layouts with form inputs on the left and live output preview on the right. Forms update output in real-time.
-
-**Data Flow**: User input → JavaScript processing → Text output formatted for copy/paste into POS systems.
+---
 
 ## Files
 
 ### index.html
+Landing page linking to all tools.
 
-Landing page providing access to all repair tools with a clean, dark-themed interface.
+---
 
 ### repair-checklist.html
-
 Interactive repair checklist generator for phones, tablets, and game consoles.
 
-**Key Features**:
-- Device-specific checklists with pre/post-repair phases
-- Template-driven checklist generation (TEMPLATES object at line 192)
-- Markdown-style output with checkbox notation `[x]` for completed, `[ ]` for incomplete
-- Live output updates without explicit "generate" action
+- Device-specific Pre/Post checklists driven by a `TEMPLATES` object
+- Live output updates without a "generate" button
+- Output: plain text with `[x]` / `[ ]` checkbox notation for ticket systems
 
-**Template Structure**:
-```javascript
-TEMPLATES = {
-  Phone: { Pre: [...], Post: [...] },
-  Tablet: { Pre: [...], Post: [...] },
-  Console: { Pre: [...], Post: [...] }
-}
-```
+---
 
-**Output Format**: Plain text with headers, metadata, and checkbox lists suitable for ticket systems.
+### pc-doctor-summarizer.html
+Documents hardware diagnostics and service work with PC-Doctor report parsing.
 
-### pc-doctor-summarizer.html (Computer Repair Checklist)
+- Parsers: `parseCPU()`, `parseRAM()`, `parseStorage()`, `parseGPU()`, `parseOS()`, `parseTests()`
+- Preset workflows: Quick Clean, New PC Setup, Business Standard, Gaming Build, Managed Care
+- Failure detection avoids false positives (checks for `Failed`, `Error`, `Critical`, `Bad`, `SMART Warning`)
+- Defaults saved/loaded via localStorage
 
-Documents hardware diagnostics and service work with PC-Doctor report parsing for professional ticket notes.
+---
 
-**Key Features**:
-- Simplified parser for hardware specifications (CPU, RAM, Storage, GPU, OS)
-- Test result analysis with failure detection
-- Preset workflows for common service bundles
-- LocalStorage-based defaults system for technician preferences
-- Dual-mode operation: works with or without PC-Doctor report
+### pricing-calculator.html
+**Main active tool.** Multi-tab pricing calculator for tech bench use.
 
-**Parser Functions** (simplified for better maintainability):
-- `parseCPU()`: Extracts CPU model using single regex pattern for Intel/AMD processors
-- `parseRAM()`: Detects total memory and module configurations with clear, readable logic
-- `parseStorage()`: Finds model, capacity, and free space
-- `parseGPU()`: Identifies up to 2 GPUs with deduplication
-- `parseOS()`: Extracts OS version and build information
-- `parseTests()`: Simplified test detection with clear component categorization and failure checking
+#### Tabs
 
-**Presets** (lines 326-363):
-- Quick Clean, New PC Setup, Business Standard, Gaming Build
-- Managed Care Lite/Plus packages
-- Custom defaults save/load via localStorage
+| Tab | Status | Description |
+|---|---|---|
+| iPhone Presets | Active | Preset pricing for iPhone 6 through 17 series |
+| Android Presets | WIP | Samsung Galaxy S20–S26 Ultra + Galaxy A series |
+| Manual Calculator | Active | Custom labor + parts quotes for any device |
+| Console Repair | Active | PS5, PS4, Xbox Series/One, Nintendo Switch |
 
-**Test Result Logic**: Avoids false positives by checking for actual failure tokens (`Failed`, `Error`, `Critical`, `Bad`, `SMART Warning`) rather than generic keywords. Special handling for network tests when Ethernet cable is not connected.
+---
+
+#### iPhone Presets
+
+**Data**: `IPHONE_PRICING` — all models keyed by name, repair type → price.
+**Screen repairs**: Soft OLED AM only (no OEM option).
+**DisplayShield**: Auto-included on all screen repairs. Cost is built into the screen price — nothing added to total. Deductible auto-selected per model from `IPHONE_DS_DEDUCTIBLE`.
+**Secondary repairs**: 40% off (Battery flat $60, Back Glass no discount).
+**POS SKUs**: `IPHONE_LABOR_SKUS` maps repair type → labor SKU. SKU panel shown in right column when repair is selected. Reminder to attach part SKU in POS.
+
+**Updating screen prices**: Edit `IPHONE_PRICING[model]["Screen (Soft OLED AM)"]`.
+**Updating deductibles**: Edit `IPHONE_DS_DEDUCTIBLE[model]` (values: 0, 29, 49, 99).
+**Adding a new model**: Add entry to `IPHONE_PRICING` and `IPHONE_DS_DEDUCTIBLE`. Model order follows CSV (newest → oldest).
+
+**Reference file**: `POS Price Reference.csv` — source of truth for screen prices and deductible tiers.
+
+---
+
+#### Android Presets (WIP)
+
+**Status**: Structure and models are in place. All prices are `null` (TBD).
+
+**Models**:
+- Samsung Galaxy S Series: S20 through S26 Ultra (26 models)
+- Samsung Galaxy A Series: A02s, A03s, A10, A10e, A12, A13 5G, A14 5G, A15 5G, A32 5G, A51 5G, A52 5G
+
+**Repair types**: Screen Repair, Battery, Charging Port, Back Cover / Glass.
+**DisplayShield**: Auto-shown on screen repairs. Deductible selector present but tiers are TBD per model.
+**POS SKUs**: Auto-selected based on series — `SMSCREENREP` etc. for S-series, `ASERIES-SCREEN` etc. for A-series.
+
+**When pricing is ready**:
+1. Fill in `null` values in `ANDROID_PRICING[model][repairType]`
+2. Add `ANDROID_DS_DEDUCTIBLE` object (same pattern as `IPHONE_DS_DEDUCTIBLE`)
+3. Wire deductible auto-select into `calculateAndroid()` (same pattern as `calculateIphone()`)
+4. Remove WIP badge from tab and WIP notice card from mode content
+
+---
+
+#### Manual Calculator
+
+For non-preset devices (Samsung, Motorola, Pixel, Android, iPad, etc.).
+
+- **Labor tiers**: $80 Budget / $120 Mid-range / $150 Flagship / Custom
+- **Parts**: Add by name + cost, markup slider (10–20%)
+- **Shipping**: None / $10 2-day / $25 overnight
+- **DisplayShield**: Optional toggle. Shows exact store cost + rounded customer charge. Store cost from `DS_COSTS` (lower-bound lookup by repair total, per deductible tier). Source: `DisplayShield Costs.csv`.
+- **POS SKU Reference**: Brand selector (Samsung Galaxy S/A, Motorola, Google Pixel, Android Other) + repair type → builds a SKU list. Data in `MANUAL_SKUS`. Notes: link part item, 40% secondary discount, missing SKU warning.
+
+**Updating DS costs**: Edit `DS_COSTS` in the script. Rows are `[minRepairPrice, storeCost]` lower-bound pairs. Reference: `DisplayShield Costs.csv`.
+
+---
+
+#### Console Repair
+
+Flat-rate pricing for game consoles.
+
+- **Current Gen** ($175 flat): PS5, Xbox Series X/S
+- **Last Gen** ($150 flat): PS4 Pro, PS4/Slim, Xbox One S/X, Xbox One
+- **Nintendo Switch**: Per-repair pricing (Switch, Lite, OLED, Switch 2)
+- Repair types: HDMI/No Display, No Power, Hardware (Fan/Disc Drive), Software Issue, Cleaning/Overheating. Switch adds: Digitizer, LCD, Battery, Charge Port, Card Reader, Joystick/Rail.
+- POS SKU shown on repair selection.
+- Tech Notes card: $75 diag fee, liquid damage → ADVREPAIR, parts billed separately, retro consoles case-by-case.
+
+**Data**: `CONSOLE_PRICING[device].repairs[repairType]` → `{ price, sku }`.
+
+---
+
+#### DisplayShield Logic
+
+- **iPhone presets**: DS cost is baked into screen price. `dsAdd = 0`. Deductible shown for reference only. Auto-selected from `IPHONE_DS_DEDUCTIBLE`.
+- **Android presets**: Same intent as iPhone once pricing is built out.
+- **Manual calculator**: DS is optional. Store cost = `getDSStoreCost(repairTotal, deductible)`. Customer charge = `getDSCharge()` (rounds up to nearest $10). Both shown in DS card.
+
+`getDSStoreCost()` uses lower-bound lookup: finds highest `minPrice ≤ repairTotal` in `DS_COSTS[deductible]`.
+
+---
+
+#### Right Column (shared output)
+
+- **Total display**: Updates live per mode
+- **POS Labor SKUs panel** (`#sku-section`): Shows labor SKU per repair. Visible in iPhone and Android modes when a repair is selected. Hidden in Manual and Console modes.
+- **SMS Quote**: Copy-ready customer message
+- **Detailed Breakdown**: Copy-ready breakdown for ticket notes
+
+---
 
 ### Bitdefender Mobile Manager (Google Apps Script)
 
-**Status**: Currently hosted separately as a Google Apps Script web app (not in this repository).
+Hosted separately at script.google.com. Manages Bitdefender Mobile Security subscriptions, tracks renewals, sends activation emails via Gmail. Not version-controlled here. Linked from index.html.
 
-**Purpose**: Manages Bitdefender Mobile Security customer subscriptions, tracks renewals, and sends automated activation emails.
+---
 
-**Key Features**:
-- Searches MyRepairApp API for customers who purchased BIT-MOBSEC SKU
-- Calculates renewal dates (365-day subscriptions)
-- Sends branded activation emails with GravityZone links
-- Tracks invitation history using Google Properties Service
-- Filters customers by status (Active, Expiring Soon, Expired)
-- Renewal reminder dashboard
+## Data Files (not committed to repo — reference only)
 
-**Architecture**:
-- **Backend**: Google Apps Script (code.gs) - Handles API calls and email sending
-- **Frontend**: HTML/JavaScript (BitdefenderManager.html) - User interface
-- **API Integration**: MyRepairApp API for ticket/customer data
-- **Email Service**: Gmail via MailApp (100 emails/day free, unlimited with Google Workspace)
-- **Storage**: PropertiesService for tracking sent invitations
+| File | Purpose |
+|---|---|
+| `POS Price Reference.csv` | iPhone screen prices + DS deductible tiers per model |
+| `DisplayShield Costs.csv` | DS store costs by repair price range and deductible tier |
+| `Samsung_Android SKU CS.csv` | Samsung/Android labor SKUs and notes |
+| `G2G_Game_Console_Repair_Pricing.xlsx` | Console flat-rate pricing and SKU reference |
 
-**Configuration**:
-```javascript
-const MYREPAIRAPP_API_KEY = '...'
-const BITDEFENDER_SKU = 'BIT-MOBSEC'
-const BITDEFENDER_ACTIVATION_LINK = 'https://gz1-device-api.ms.gravityzone.bitdefender.com/...'
-const SUBSCRIPTION_LENGTH_DAYS = 365
-const RETAIL_PRICE = 60
-const MONTHLY_COST = 1.30
-```
+---
 
-**Access**: Linked from index.html but hosted at script.google.com (requires Google account login)
+## Branding
 
-**Future Migration Options** (if needed):
+- **Accent red**: `#C10A11`
+- **Background**: `#f9f9f9`
+- **Cards**: `#ffffff`
+- **Text**: `#000000`
+- **Muted**: `#6b7280`
+- **Status amber**: `#F59E0B` (WIP badges, warnings)
+- **Status green**: `#10B981`
 
-1. **Hybrid Approach** (Recommended next step):
-   - Keep Google Apps Script backend for email/API
-   - Create cleaner frontend in this repo that calls the script
-   - Deploy web app as published version with public access
-   - Better integration with other tools while keeping email functionality
+---
 
-2. **Full Migration to GitHub Pages**:
-   - Replace MailApp with email service (EmailJS, SendGrid, AWS SES)
-   - Move MyRepairApp API calls to client-side (requires CORS support)
-   - Store invitation tracking in localStorage or external database
-   - **Pros**: Everything in one repo, version controlled
-   - **Cons**: Email service costs, API key exposure concerns, more complex
+## Common Tasks
 
-3. **Backend Service** (Advanced):
-   - Build Node.js backend (Netlify Functions, Vercel, AWS Lambda)
-   - Handle API calls and email sending server-side
-   - Frontend stays in this repo
-   - **Pros**: Secure API keys, full control
-   - **Cons**: Requires backend hosting, more maintenance
+**Add a new iPhone model**: Add to `IPHONE_PRICING` and `IPHONE_DS_DEDUCTIBLE`. Follow newest→oldest order. Screen (Soft OLED AM) only.
 
-**Current Limitations**:
-- Separate hosting from other tools
-- Long, ugly URL
-- Must be logged into Google account to access
-- Not version controlled with other tools
+**Update a screen price**: Edit `IPHONE_PRICING[model]["Screen (Soft OLED AM)"]`. Use `POS Price Reference.csv` as source of truth.
 
-**Why Google Apps Script Works Well**:
-- Free email sending (100/day or unlimited with Workspace)
-- Easy MyRepairApp API integration
-- Built-in PropertiesService for simple data storage
-- No server management
-- Scheduled triggers available for automated renewals
+**Add a console**: Add entry to `CONSOLE_PRICING` with repairs object. Add model to the appropriate `CONSOLE_GROUPS` entry.
 
-## Common Workflows
+**Add an Android model**: Add to `ANDROID_MODELS.S` or `ANDROID_MODELS.A` array. `ANDROID_PRICING` is auto-built from those arrays with `null` prices.
 
-### Modifying Checklist Templates
+**Update DS cost table**: Edit `DS_COSTS` using `DisplayShield Costs.csv`. Structure: `{ deductible: [[minPrice, storeCost], ...] }`.
 
-Edit the `TEMPLATES` object in `repair-checklist.html`. Each device type has Pre and Post arrays of checklist items.
-
-### Adding Parser Support
-
-For `pc-doctor-summarizer.html`:
-1. Create a new `parse*()` function following the simplified pattern used in existing parsers
-2. Add parsed data to `buildSummary()` output
-3. Test with sample reports using the "Load sample" button
-
-### Updating Shared Styles
-
-Edit `shared.css` to modify styles that apply to all tools. Each tool can override shared styles using CSS custom properties defined in their `:root` selector.
-
-### Adding Service Presets
-
-Add new preset cases in `applyPreset()` function (lines 326-363). Each preset calls `setChecked()` and `setVal()` to configure the form state.
-
-## Styling
-
-**Shared Styles**: `shared.css` contains common patterns (form elements, buttons, cards, grid layouts)
-
-**Theme Customization**: Each tool defines CSS custom properties in `:root`:
-- `repair-checklist.html`: Dark theme (slate-900 background, green accents)
-- `pc-doctor-summarizer.html`: Light theme (gray-50 background, blue accents)
-- `index.html`: Dark theme (slate-900 background, green accents)
-
-## Testing
-
-Open HTML files directly in a browser. No build step required.
-
-For `pc-doctor-summarizer.html`, use the "Load sample" button to populate test data and verify parser functionality.
+**Deploy**: `git push` to main. GitHub Pages auto-deploys. Allow 2–5 minutes.
