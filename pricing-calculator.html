@@ -555,6 +555,28 @@
       font-weight: 600;
       color: #92400e;
     }
+
+    /* WIP badge & notice */
+    .wip-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      background: #F59E0B;
+      color: #fff;
+      padding: 2px 5px;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-left: 5px;
+      letter-spacing: 0.04em;
+    }
+    .wip-notice {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #78350f;
+    }
   </style>
 </head>
 <body>
@@ -573,6 +595,7 @@
         <button class="mode-tab active" data-mode="iphone">iPhone Presets</button>
         <button class="mode-tab" data-mode="manual">Manual Calculator</button>
         <button class="mode-tab" data-mode="console">Console Repair</button>
+        <button class="mode-tab" data-mode="android">Android Presets <span class="wip-badge">WIP</span></button>
       </div>
 
       <!-- iPhone Mode -->
@@ -851,6 +874,68 @@
 
       </div>
 
+      <!-- Android Presets Mode -->
+      <div id="android-mode" class="mode-content">
+
+        <div class="wip-notice">
+          <strong>Work in Progress</strong> — Models and repair types are set up. Pricing and DisplayShield deductible levels are being built out and will be added soon.
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="section-title">Select Device & Repair</div>
+
+          <div class="form-row">
+            <label for="android-model">Model</label>
+            <select id="android-model"></select>
+          </div>
+
+          <div class="form-row">
+            <label for="android-repair">Repair Type</label>
+            <select id="android-repair">
+              <option value="">-- Select Repair --</option>
+              <option>Screen Repair</option>
+              <option>Battery</option>
+              <option>Charging Port</option>
+              <option>Back Cover / Glass</option>
+            </select>
+          </div>
+
+          <div class="price-display muted" id="android-price">Select a repair</div>
+        </div>
+
+        <!-- DisplayShield Card -->
+        <div id="ds-android-card" class="card ds-card" style="display:none;">
+          <div class="ds-header">
+            <div>
+              <div class="section-title" style="margin:0;">DisplayShield Included</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">Screen protection & warranty — included with every screen repair</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <div style="font-size:13px; color:var(--muted); font-weight:500;">Customer deductible at time of claim: <em style="color:var(--accent); font-size:11px; font-style:normal;">(TBD per model)</em></div>
+            <div class="deductible-tiles">
+              <label class="deductible-tile">
+                <input type="radio" name="android-deductible" value="0">
+                <div class="tile-amount">$0</div>
+              </label>
+              <label class="deductible-tile selected">
+                <input type="radio" name="android-deductible" value="29" checked>
+                <div class="tile-amount">$29</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="android-deductible" value="49">
+                <div class="tile-amount">$49</div>
+              </label>
+              <label class="deductible-tile">
+                <input type="radio" name="android-deductible" value="99">
+                <div class="tile-amount">$99</div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
     <!-- Right Column - Output -->
@@ -1033,6 +1118,40 @@
     }}
   };
 
+  // Android Presets — pricing TBD, structure ready
+  const ANDROID_MODELS = {
+    S: [
+      "Galaxy S20","Galaxy S20 Plus","Galaxy S20 FE","Galaxy S20 Ultra",
+      "Galaxy S21 FE","Galaxy S21","Galaxy S21 Plus","Galaxy S21 Ultra",
+      "Galaxy S22","Galaxy S22 Plus","Galaxy S22 Ultra",
+      "Galaxy S23","Galaxy S23 Plus","Galaxy S23 FE","Galaxy S23 Ultra",
+      "Galaxy S24 FE","Galaxy S24","Galaxy S24 Plus","Galaxy S24 Ultra",
+      "Galaxy S25 FE","Galaxy S25","Galaxy S25 Plus","Galaxy S25 Ultra",
+      "Galaxy S26","Galaxy S26 Plus","Galaxy S26 Ultra"
+    ],
+    A: [
+      "Galaxy A02s (A025)","Galaxy A03s (A037)","Galaxy A10 (A105)","Galaxy A10e (A102)",
+      "Galaxy A12 (A125)","Galaxy A13 5G (A136)","Galaxy A14 5G (A146)","Galaxy A15 5G (A156)",
+      "Galaxy A32 5G (A326)","Galaxy A51 5G (A516)","Galaxy A52 5G (A526)"
+    ]
+  };
+
+  // All prices null = TBD. Update with actual prices when available.
+  const ANDROID_PRICING = {};
+  [...ANDROID_MODELS.S, ...ANDROID_MODELS.A].forEach(m => {
+    ANDROID_PRICING[m] = {
+      "Screen Repair":      null,
+      "Battery":            null,
+      "Charging Port":      null,
+      "Back Cover / Glass": null
+    };
+  });
+
+  const ANDROID_LABOR_SKUS = {
+    S: { "Screen Repair":"SMSCREENREP", "Battery":"SMBATTREP", "Charging Port":"SMCHRGREP", "Back Cover / Glass":"SMBGREP" },
+    A: { "Screen Repair":"ASERIES-SCREEN", "Battery":"ASERIES-BATT", "Charging Port":"ASERIES-CHRG", "Back Cover / Glass":"ASERIES-BG" }
+  };
+
   // iPhone labor SKUs (one per repair type — attach part SKU separately in POS)
   const IPHONE_LABOR_SKUS = {
     "Screen (Soft OLED AM)":      "IPSCRNREP",
@@ -1176,6 +1295,7 @@
   function init() {
     populateIphoneModels();
     populateRepairOptions();
+    populateAndroidModels();
     populateSkuBrands();
     populateConsoleDevices();
     bindEvents();
@@ -1215,6 +1335,26 @@
         opt2.textContent = repair;
         addSelect.appendChild(opt2);
       }
+    });
+  }
+
+  function populateAndroidModels() {
+    const sel = $('android-model');
+    sel.innerHTML = '<option value="">-- Select Model --</option>';
+    const groups = [
+      { label: 'Samsung Galaxy S Series', models: ANDROID_MODELS.S },
+      { label: 'Samsung Galaxy A Series', models: ANDROID_MODELS.A }
+    ];
+    groups.forEach(g => {
+      const og = document.createElement('optgroup');
+      og.label = g.label;
+      g.models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
     });
   }
 
@@ -1305,7 +1445,7 @@
         currentMode = tab.dataset.mode;
         document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
         $(`${currentMode}-mode`).classList.add('active');
-        if (currentMode !== 'iphone') renderSkuSection([]);
+        if (currentMode !== 'iphone' && currentMode !== 'android') renderSkuSection([]);
         calculate();
       });
     });
@@ -1344,6 +1484,24 @@
       $('iphone-add-repair').value = '';
       renderIphoneRepairs();
       calculate();
+    });
+
+    // Android mode
+    $('android-model').addEventListener('change', () => {
+      $('android-repair').value = '';
+      $('android-price').textContent = 'Select a repair';
+      $('android-price').classList.add('muted');
+      $('ds-android-card').style.display = 'none';
+      renderSkuSection([]);
+      calculate();
+    });
+    $('android-repair').addEventListener('change', () => calculate());
+    document.querySelectorAll('#ds-android-card .deductible-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        document.querySelectorAll('#ds-android-card .deductible-tile').forEach(t => t.classList.remove('selected'));
+        tile.classList.add('selected');
+        tile.querySelector('input').checked = true;
+      });
     });
 
     // Manual SKU reference
@@ -1469,6 +1627,13 @@
         populateRepairOptions();
         renderIphoneRepairs();
         $('ds-card').style.display = 'none';
+      } else if (currentMode === 'android') {
+        $('android-model').value = '';
+        $('android-repair').value = '';
+        $('android-price').textContent = 'Select a repair';
+        $('android-price').classList.add('muted');
+        $('ds-android-card').style.display = 'none';
+        renderSkuSection([]);
       } else if (currentMode === 'console') {
         $('console-device').value = '';
         populateConsoleRepairs('');
@@ -1576,11 +1741,53 @@
   function calculate() {
     if (currentMode === 'iphone') {
       calculateIphone();
+    } else if (currentMode === 'android') {
+      calculateAndroid();
     } else if (currentMode === 'console') {
       calculateConsole();
     } else {
       calculateManual();
     }
+  }
+
+  function calculateAndroid() {
+    const model = $('android-model').value;
+    const repair = $('android-repair').value;
+    const isScreen = repair === 'Screen Repair';
+
+    if (!model || !repair) {
+      $('android-price').textContent = 'Select a repair';
+      $('android-price').classList.add('muted');
+      $('ds-android-card').style.display = 'none';
+      $('total-display').textContent = '$0';
+      $('sms-out').value = '';
+      $('out').value = '';
+      renderSkuSection([]);
+      return;
+    }
+
+    $('ds-android-card').style.display = isScreen ? '' : 'none';
+
+    const price = ANDROID_PRICING[model]?.[repair];
+    const series = model.startsWith('Galaxy A') ? 'A' : 'S';
+    const sku = ANDROID_LABOR_SKUS[series]?.[repair];
+
+    if (price === null) {
+      $('android-price').textContent = 'TBD';
+      $('android-price').classList.add('muted');
+      $('total-display').textContent = 'TBD';
+      $('sms-out').value = '';
+      $('out').value = `${model} — ${repair}\nPrice: TBD (pricing being built out)`;
+    } else {
+      $('android-price').textContent = '$' + price.toFixed(2);
+      $('android-price').classList.remove('muted');
+      $('total-display').textContent = '$' + price.toFixed(2);
+      const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repair}${isScreen ? ' + DisplayShield' : ''}: $${price.toFixed(2)}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
+      $('sms-out').value = sms;
+      $('out').value = `${model} Repair Quote\n${'─'.repeat(30)}\n${repair.padEnd(25)} $${price.toFixed(2)}${isScreen ? '\n' + 'DisplayShield:'.padEnd(25) + ' Included' : ''}\n${'─'.repeat(30)}\n${'TOTAL:'.padEnd(25)} $${price.toFixed(2)}`;
+    }
+
+    renderSkuSection(sku ? [{ repair, sku }] : []);
   }
 
   function calculateConsole() {
