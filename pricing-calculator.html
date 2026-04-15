@@ -1291,6 +1291,31 @@
   let dsManualEnabled = false;
   let dsDeductible = 29;
 
+  // Shared SMS quote builder
+  function buildQuoteSMS({ quoteLine, hasDisplayShield, deductible, extraNote }) {
+    const lines = [
+      "Hi! Here's your quote from Geek2Go:",
+      "",
+      quoteLine,
+      "",
+    ];
+    if (hasDisplayShield) {
+      lines.push("You're not just getting a screen fix. Every repair includes:");
+      lines.push("✓ Lifetime warranty*");
+      lines.push(`✓ 1-year screen guarantee — if it breaks again, we'll replace it for just $${deductible}`);
+    } else {
+      lines.push("Every repair includes:");
+      lines.push("✓ Lifetime warranty* on parts & labor");
+    }
+    if (extraNote) {
+      lines.push("");
+      lines.push(extraNote);
+    }
+    lines.push("");
+    lines.push("Ready to book? Reply YES and we'll get you scheduled!");
+    return lines.join('\n');
+  }
+
   // Initialize
   function init() {
     populateIphoneModels();
@@ -1782,8 +1807,8 @@
       $('android-price').textContent = '$' + price.toFixed(2);
       $('android-price').classList.remove('muted');
       $('total-display').textContent = '$' + price.toFixed(2);
-      const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repair}${isScreen ? ' + DisplayShield' : ''}: $${price.toFixed(2)}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
-      $('sms-out').value = sms;
+      const quoteLine = `${model} ${repair}${isScreen ? ' + DisplayShield' : ''} — $${price.toFixed(2)}`;
+      $('sms-out').value = buildQuoteSMS({ quoteLine, hasDisplayShield: isScreen, deductible: dsDeductible });
       $('out').value = `${model} Repair Quote\n${'─'.repeat(30)}\n${repair.padEnd(25)} $${price.toFixed(2)}${isScreen ? '\n' + 'DisplayShield:'.padEnd(25) + ' Included' : ''}\n${'─'.repeat(30)}\n${'TOTAL:'.padEnd(25)} $${price.toFixed(2)}`;
     }
 
@@ -1813,8 +1838,11 @@
 
     $('total-display').textContent = '$' + price.toFixed(2);
 
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${device} — ${repair}: $${price.toFixed(2)}\n\nIncludes $75 diagnostic fee (applied toward repair cost). Parts billed separately if needed. Let us know if you'd like to proceed!`;
-    $('sms-out').value = sms;
+    $('sms-out').value = buildQuoteSMS({
+      quoteLine: `${device} — ${repair} — $${price.toFixed(2)}`,
+      hasDisplayShield: false,
+      extraNote: 'Includes $75 diagnostic fee (applied toward repair cost). Parts billed separately if needed.',
+    });
 
     const lines = [];
     lines.push(`${device} Repair Quote`);
@@ -1876,8 +1904,11 @@
       : repairList.slice(0, -1).join(', ') + ' & ' + repairList[repairList.length - 1];
 
     const repairLabel = screenRepair ? `${repairText} + DisplayShield` : repairText;
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${model} ${repairLabel}: $${finalTotal.toFixed(2)}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
-    $('sms-out').value = sms;
+    $('sms-out').value = buildQuoteSMS({
+      quoteLine: `${model} ${repairLabel} — $${finalTotal.toFixed(2)}`,
+      hasDisplayShield: screenRepair,
+      deductible: dsDeductible,
+    });
 
     // Build detailed breakdown
     const lines = [];
@@ -1953,8 +1984,11 @@
     }
 
     const repairLabel = dsAdd > 0 ? `${repairText} + DisplayShield` : repairText;
-    const sms = `Hi! Here's your quote from Geek2Go:\n\n${device} ${repairLabel}: $${finalTotal}\n\nThis includes parts & labor. Let us know if you'd like to proceed!`;
-    $('sms-out').value = sms;
+    $('sms-out').value = buildQuoteSMS({
+      quoteLine: `${device} ${repairLabel} — $${finalTotal}`,
+      hasDisplayShield: dsAdd > 0,
+      deductible: dsDeductible,
+    });
 
     // Build detailed breakdown
     const lines = [];
